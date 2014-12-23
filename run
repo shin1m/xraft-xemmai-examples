@@ -1,0 +1,6 @@
+#!/bin/sh
+
+XRAFT_ROOT=~/xemmai
+
+#XEMMAI_MODULE_PATH=$XRAFT_ROOT/xraft/xemmai/.libs $XRAFT_ROOT/debug/bin/xemmai --verbose $*
+$XRAFT_ROOT/debug/bin/xemmai --verbose $*
