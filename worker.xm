@@ -94,7 +94,7 @@ Frame = Class(xraft.Frame) :: @{
 		$_worker.terminate();
 		xraft.application().exit();
 	};
-	$__initialize = @(channels) {
+	$__initialize = @{
 		:$^__initialize[$]();
 		$caption__("Worker Test");
 		$message__("Starting...");
@@ -110,7 +110,7 @@ Frame = Class(xraft.Frame) :: @{
 
 xraft.main(system.arguments, @(application) {
 	cairo.main(@{
-		frame = Frame([]);
+		frame = Frame();
 		frame.move(xraft.Rectangle(0, 0, 400, 40));
 		application.add(frame);
 		frame.show();

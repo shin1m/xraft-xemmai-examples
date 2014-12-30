@@ -10,6 +10,8 @@ xraft = Module("xraft");
 xraftwm = Module("xraftwm");
 cairo = Module("cairo");
 xraftcairo = Module("xraftcairo");
+dbus = Module("dbus");
+power = Module("power");
 
 range = @(i, j, callable) {
 	while (i < j) {
@@ -580,11 +582,14 @@ Client = Class(xraftwm.Client) :: @{
 Root = Class(xraftwm.Root) :: @{
 	days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 	pad0 = @(i) i < 10 ? "0" + i : i.__string();
-	$invalidate_clock = @{
+	$invalidate_bar = @{
 		screen = xraft.application().screen();
 		extents = $_font.text_extents("00/00");
 		w = ceil(extents[0] + extents[4] + 2.0);
 		$invalidate(screen.width() - w, 0, w, screen.height());
+	};
+	$invalidate_clock = @{
+		$invalidate_bar();
 		s = time.decompose(time.now() + Float(time.offset()))[5];
 		$_timer.start(Integer((60 - s) * 1000), true);
 	};
@@ -600,6 +605,10 @@ Root = Class(xraftwm.Root) :: @{
 		h = ceil($_font.font_extents()[2]);
 		x = screen.width() - w;
 		y = screen.height() - h * 3 - 2;
+		context.save();
+		context.translate(x + 4, y - h * 5);
+		$_power.draw(context, w - 8, h * 4);
+		context.restore();
 		context.set_scaled_font($_font);
 		text = $v_text_active;
 		context.set_source_rgb(text.red, text.green, text.blue);
@@ -702,6 +711,7 @@ Root = Class(xraftwm.Root) :: @{
 		$cursor__(xraft.application().cursor_x());
 		$_timer = xraft.Timer($invalidate_clock);
 		$invalidate_clock();
+		$_power = power.Indicator($invalidate_bar);
 	};
 	$remove = @(i) {
 		:$^remove[$](i);
@@ -738,11 +748,13 @@ Root = Class(xraftwm.Root) :: @{
 
 xraft.main(system.arguments, @(application) {
 	cairo.main(@{
-		try {
-			Root().run();
-		} catch (Throwable e) {
-			print(e);
-			e.dump();
-		}
+		dbus.main(@{
+			try {
+				Root().run();
+			} catch (Throwable e) {
+				print(e);
+				e.dump();
+			}
+		});
 	});
 });
