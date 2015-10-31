@@ -556,7 +556,7 @@ Client = Class(xraftwm.Client) :: @{
 	$on_pointer_move = @(modifier, x, y) {
 		if ($parent()._resizing !== null) return;
 		pointed = $pointed(x, y);
-		if (pointed == $_pointed) return;
+		if (pointed === $_pointed) return;
 		$_pointed.invalidate($);
 		$_pointed = pointed;
 		$_pointed.invalidate($);
