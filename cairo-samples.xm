@@ -404,10 +404,10 @@ Frame = Class(xraft.Frame) :: @
 		context.scale(scale, scale
 		samples[$i](context
 	$on_key_press = @(modifier, key, ascii)
-		$on_close() if key == xraft.Key.Q
+		if key == xraft.Key.Q: $on_close(
 		if key == xraft.Key.SPACE
 			$i = $i + 1
-			$i = 0 if $i >= samples.size()
+			if $i >= samples.size(): $i = 0
 			extent = $geometry(
 			$invalidate(0, 0, extent.width(), extent.height()
 	$on_close = @() xraft.application().exit(

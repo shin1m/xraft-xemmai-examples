@@ -27,7 +27,7 @@ Ball = Class() :: @
 		dx = ball.x - $x
 		dy = ball.y - $y
 		l = sqrt(dx * dx + dy * dy
-		return if l >= $r + ball.r
+		if l >= $r + ball.r: return
 		if l > 0.0
 			dx = dx / l
 			dy = dy / l
@@ -46,8 +46,7 @@ Ball = Class() :: @
 			ball.vy = w2 * dx + vv2 * dy
 
 Balls = Class(xraft.Frame) :: @
-	range = @(i, j, callable)
-		callable(i for ; i < j; i = i + 1
+	range = @(i, j, callable) for ; i < j; i = i + 1: callable(i
 	$invalidate_all = @
 		extent = $geometry(
 		$invalidate(0, 0, extent.width(), extent.height()
@@ -63,12 +62,12 @@ Balls = Class(xraft.Frame) :: @
 		$energy = energy
 		$invalidate_all(
 	$remove = @
-		return if $balls.size() <= 0
+		if $balls.size() <= 0: return
 		$balls.shift(
 		$invalidate_all(
 	$append = @
 		cursor = $cursor
-		return if cursor === null
+		if cursor === null: return
 		$balls.push(Ball($ball, $mask, cursor.x(), cursor.y(), 0.0, 0.0
 		$invalidate_all(
 	$on_move = @
@@ -111,7 +110,7 @@ Balls = Class(xraft.Frame) :: @
 		g.draw(0, h * 2, "Kinetic and Potential Energy: " + $energy
 		g.draw(0, h * 3, "Double Bufferred: " + $double_bufferred
 		cursor = $cursor
-		return if cursor === null
+		if cursor === null: return
 		ball = $ball
 		r = ball.width() / 2
 		g.draw(cursor.x() - r, cursor.y() - r, ball.width(), ball.height()

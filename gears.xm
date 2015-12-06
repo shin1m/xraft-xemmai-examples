@@ -5,8 +5,7 @@ matrix = Module("matrix"
 xraft = Module("xraft"
 gl = Module("gl"
 
-range = @(i, j, callable)
-	callable(i for ; i < j; i = i + 1
+range = @(i, j, callable) for ; i < j; i = i + 1: callable(i
 
 Matrix3 = matrix.Matrix3
 Matrix4 = matrix.Matrix4
@@ -281,7 +280,7 @@ void main()
 		shader = gl.Shader(type
 		shader.source(source
 		shader.compile(
-		throw Throwable(source + shader.get_info_log() if shader.get_parameteri(gl.COMPILE_STATUS) == gl.FALSE
+		if shader.get_parameteri(gl.COMPILE_STATUS) == gl.FALSE: throw Throwable(source + shader.get_info_log()
 		shader
 	build = @(vshader, fshader)
 		vs = compile(gl.VERTEX_SHADER, vshader
@@ -292,7 +291,7 @@ void main()
 		vs.delete(
 		fs.delete(
 		program.link(
-		throw Throwable(program.get_info_log() if program.get_parameteri(gl.LINK_STATUS) == gl.FALSE
+		if program.get_parameteri(gl.LINK_STATUS) == gl.FALSE: throw Throwable(program.get_info_log(
 		program
 	$load = @
 		# face shaders
@@ -342,7 +341,7 @@ void main()
 		normal_front = (nm * Vector3(0.0, 0.0, 1.0)).normalized(
 		color = Vector4(0.2, 0.2, 0.2, 1.0   # ambient
 		ndotlp = normal_front * light_position
-		color = color + Vector4(ndotlp, ndotlp, ndotlp, 0.0) if ndotlp > 0.0 # ambient + diffuse
+		if ndotlp > 0.0: color = color + Vector4(ndotlp, ndotlp, ndotlp, 0.0) # ambient + diffuse
 		$_face_uniform_color.uniform4f(color.x * $_color.x, color.y * $_color.y, color.z * $_color.z, color.w * $_color.w # color * (ambient + diffuse)
 		$_face_uniform_mvp.matrix4fv(true, mvp_bytes
 		gl.bind_buffer(gl.ARRAY_BUFFER, $_front_vertices
@@ -357,7 +356,7 @@ void main()
 		normal_back = (nm * Vector3(0.0, 0.0, -1.0)).normalized(
 		color = Vector4(0.2, 0.2, 0.2, 1.0   # reload ambient
 		ndotlp = normal_back * light_position
-		color = color + Vector4(ndotlp, ndotlp, ndotlp, 0.0) if ndotlp > 0.0 # ambient + diffuse
+		if ndotlp > 0.0: color = color + Vector4(ndotlp, ndotlp, ndotlp, 0.0) # ambient + diffuse
 		$_face_uniform_color.uniform4f(color.x * $_color.x, color.y * $_color.y, color.z * $_color.z, color.w * $_color.w # color * (ambient + diffuse)
 		gl.bind_buffer(gl.ARRAY_BUFFER, $_back_vertices
 		gl.vertex_attrib_pointer($_face_attribute_vertex, 3, gl.FLOAT, false, 0, 0
@@ -414,7 +413,7 @@ Gears = Class(xraft.GLWidget) :: @
 		gl.enable(gl.DEPTH_TEST
 		$on_move(
 	$on_move = @
-		return if !$created()
+		if !$created(): return
 		$_context.make_current($
 		extent = $geometry(
 		gl.viewport(0, 0, extent.width(), extent.height()
@@ -455,17 +454,16 @@ Gears = Class(xraft.GLWidget) :: @
 
 		viewing = viewings.pop(
 		$_context.flush(
-	$on_key_press = @(modifier, key, ascii)
-		xraft.application().exit() if key == xraft.Key.Q
+	$on_key_press = @(modifier, key, ascii) if key == xraft.Key.Q: xraft.application().exit(
 	$on_button_press = @(modifier, button, x, y)
-		return if $_pressed !== null
+		if $_pressed !== null: return
 		$_pressed = '(x, y
 		$_origin = '($_rotate_x, $_rotate_y
 	$on_button_release = @(modifier, button, x, y)
-		return if $_pressed === null
+		if $_pressed === null: return
 		$_pressed = $_origin = null
 	$on_pointer_move = @(modifier, x, y)
-		return if $_pressed === null
+		if $_pressed === null: return
 		$_rotate_x = $_origin[0] + math.PI * (y - $_pressed[1]) / 180.0
 		$_rotate_y = $_origin[1] + math.PI * (x - $_pressed[0]) / 180.0
 		$invalidate_all(

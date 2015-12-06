@@ -25,8 +25,7 @@ Frame = Class(xraft.Frame) :: @
 		context.move_to(0.0, extents[3]
 		context.show_text($message
 	)[$]
-	$on_key_press = @(modifier, key, ascii)
-		$on_close() if key == xraft.Key.Q
+	$on_key_press = @(modifier, key, ascii) if key == xraft.Key.Q: $on_close(
 	$on_close = @() xraft.application().exit(
 	$__initialize = @(connection)
 		:$^__initialize[$](

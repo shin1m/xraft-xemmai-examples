@@ -3,8 +3,7 @@ xraft = Module("xraft"
 cairo = Module("cairo"
 xraftcairo = Module("xraftcairo"
 
-range = @(i, j, callable)
-	callable(i for ; i < j; i = i + 1
+range = @(i, j, callable) for ; i < j; i = i + 1: callable(i
 
 tutorial0 = @(context)
 	context.set_source_rgb(0.0, 0.0, 0.0
@@ -60,10 +59,10 @@ Frame = Class(xraft.Frame) :: @
 		context.fill(
 		samples[$i](context
 	$on_key_press = @(modifier, key, ascii)
-		$on_close() if key == xraft.Key.Q
+		if key == xraft.Key.Q: $on_close(
 		if key == xraft.Key.SPACE
 			$i = $i + 1
-			$i = 0 if $i >= samples.size()
+			if $i >= samples.size(): $i = 0
 			extent = $geometry(
 			$invalidate(0, 0, extent.width(), extent.height()
 	$on_close = @() xraft.application().exit(

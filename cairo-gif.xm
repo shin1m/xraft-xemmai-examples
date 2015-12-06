@@ -22,12 +22,12 @@ Frame = Class(xraft.Frame) :: @
 		else
 			$timer.stop(
 		$i = $i + 1
-		$i = 0 if $i >= $images.size()
+		if $i >= $images.size(): $i = 0
 		extent = $geometry(
 		$invalidate(0, 0, extent.width(), extent.height()
 	$on_paint = @(g) g.draw(0, 0, $pixmap, 0, 0, $pixmap.width(), $pixmap.height()
 	$on_key_press = @(modifier, key, ascii)
-		$on_close() if key == xraft.Key.Q
+		if key == xraft.Key.Q: $on_close(
 		if key == xraft.Key.SPACE
 			$timer.stop(
 			$step(
@@ -44,7 +44,7 @@ Frame = Class(xraft.Frame) :: @
 		$move(xraft.Rectangle(0, 0, $images.width, $images.height
 
 xraft.main(system.arguments, @(application)
-	return if system.arguments.size() <= 0
+	if system.arguments.size() <= 0: return
 	cairo.main(@
 		frame = Frame(system.arguments[0]
 		application.add(frame

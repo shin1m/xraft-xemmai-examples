@@ -8,13 +8,11 @@ ElementReader = Class(libxml.TextReader) :: @
 		$_type = null
 	$read_next = @() $_type = $read() ? $node_type() : null
 	$type = @() $_type
-	$move_to_tag = @
-		$read_next() while $_type !== null && $_type != libxml.ReaderTypes.ELEMENT && $_type != libxml.ReaderTypes.END_ELEMENT
+	$move_to_tag = @() while $_type !== null && $_type != libxml.ReaderTypes.ELEMENT && $_type != libxml.ReaderTypes.END_ELEMENT: $read_next(
 	$is_start_element = @(name)
 		$move_to_tag(
 		$_type == libxml.ReaderTypes.ELEMENT && $local_name() == name
-	$check_start_element = @(name)
-		throw Throwable("must be element: " + name if !$is_start_element(name)
+	$check_start_element = @(name) if !$is_start_element(name): throw Throwable("must be element: " + name
 	$start_element = @(name)
 		$check_start_element(name
 		b = $is_empty_element(
@@ -22,7 +20,7 @@ ElementReader = Class(libxml.TextReader) :: @
 		!b
 	$end_element = @
 		$move_to_tag(
-		throw Throwable("must be end of element." if $_type != libxml.ReaderTypes.END_ELEMENT
+		if $_type != libxml.ReaderTypes.END_ELEMENT: throw Throwable("must be end of element."
 		$read_next(
 	$read_element_text = @
 		if $is_empty_element()
@@ -68,7 +66,7 @@ Request = Class() :: @
 		item = Object(
 		item.title = item.link = item.guid = item.date = ""
 		$parse_elements(item_elements, item
-		item.link = item.guid if item.link == ""
+		if item.link == "": item.link = item.guid
 		x.items['(item.title, item.link)] = '(item.date, x.items.size()
 	channel_elements = {
 		"title": @(x) x.title = $_reader.read_element_text(
@@ -94,7 +92,7 @@ Request = Class() :: @
 		item = Object(
 		item.title = item.link = item.guid = item.date = ""
 		$parse_elements(entry_elements, item
-		item.link = item.guid if item.link == ""
+		if item.link == "": item.link = item.guid
 		x.items['(item.title, item.link)] = '(item.date, x.items.size()
 	feed_elements = {
 		"title": @(x) x.title = $_reader.read_element_text(

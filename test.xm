@@ -14,10 +14,10 @@ Hello = Class(xraft.Frame) :: @
 		g.draw((extent.width() - w) / 2, (extent.height() - h) / 2 + font.ascent(), $text
 	$on_key_press = @(modifier, key, ascii)
 		print(key
-		$on_close() if key == xraft.Key.Q
+		if key == xraft.Key.Q: $on_close(
 	$on_button_press = @(modifier, button, x, y)
 		print(button
-		$on_close() if button == xraft.Button.BUTTON3
+		if button == xraft.Button.BUTTON3: $on_close(
 	$on_pointer_move = @(modifier, x, y)
 		$cursor = xraft.Point(x, y
 		extent = $geometry(

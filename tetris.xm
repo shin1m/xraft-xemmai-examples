@@ -10,8 +10,7 @@ cairo = Module("cairo"
 xraftcairo = Module("xraftcairo"
 al = Module("al"
 
-range = @(i, j, callable)
-	callable(i for ; i < j; i = i + 1
+range = @(i, j, callable) for ; i < j; i = i + 1: callable(i
 
 ceil = @(x) Integer(math.ceil(x
 
@@ -61,31 +60,31 @@ Tetrimino = Class() :: @
 			draw_block(context, x + b[0], y + b[1], $_color
 		)[$]
 	check = @(row)
-		return false if row[i] === null for i = 1; i < 11; i = i + 1
+		for i = 1; i < 11; i = i + 1: if row[i] === null: return false
 		true
 	$fix = @(rows, direction, x, y)
 		fixeds = [
 		$_blocks[direction].each((@(b)
 			i = b[1]
 			rows[y + i][x + b[0]] = $_color
-			fixeds.push(false while fixeds.size() <= i
+			while fixeds.size() <= i: fixeds.push(false
 			fixeds[i] = true
 		)[$]
 		filleds = [
 		range(0, fixeds.size(), @(i)
-			return if !fixeds[i]
+			if !fixeds[i]: return
 			j = y + i
-			filleds.push(j if check(rows[j])
+			if check(rows[j]): filleds.push(j
 		filleds
 	$conflicts = @(rows, direction, x, y)
 		bs = $_blocks[direction]
 		n = bs.size(
 		for i = 0; i < n; i = i + 1
 			b = bs[i]
-			return true if rows[y + b[1]][x + b[0]] !== null
+			if rows[y + b[1]][x + b[0]] !== null: return true
 		false
 	$try_rotate = @(rows, direction, x, y, offsets)
-		return '(x, y if !$conflicts(rows, direction, x, y)
+		if !$conflicts(rows, direction, x, y): return '(x, y
 		os = offsets[direction]
 		n = os.size(
 		for i = 0; i < n; i = i + 1
@@ -95,7 +94,7 @@ Tetrimino = Class() :: @
 			if !$conflicts(rows, direction, x0, y0)
 				while y0 < y
 					y1 = y0 + 1
-					break if $conflicts(rows, direction, x0, y1)
+					if $conflicts(rows, direction, x0, y1): break
 					y0 = y1
 				return '(x0, y0
 	$try_rotate_left = @(rows, direction, x, y) $try_rotate(rows, direction, x, y, $_left_offsets
@@ -103,7 +102,7 @@ Tetrimino = Class() :: @
 	$ghost = @(rows, direction, x, y)
 		while true
 			y0 = y + 1
-			break if $conflicts(rows, direction, x, y0)
+			if $conflicts(rows, direction, x, y0): break
 			y = y0
 		y
 	$draw_ghost = @(context, direction, x, y)
@@ -264,12 +263,12 @@ Stage = Class(xraft.Widget) :: @
 			context.restore(
 			context.save(
 			context.translate(4.5 * unit, -3 * unit
-			$_hard_drop.draw_hard_drop(context, $_hard_drop_direction, $_hard_drop_x, $_hard_drop_y0, $_hard_drop_y1, Float($_ticks_to_fade_hard_drop) / $_speed_to_fade_hard_drop if $_hard_drop !== null
+			if $_hard_drop !== null: $_hard_drop.draw_hard_drop(context, $_hard_drop_direction, $_hard_drop_x, $_hard_drop_y0, $_hard_drop_y1, Float($_ticks_to_fade_hard_drop) / $_speed_to_fade_hard_drop
 			range(3, 24, (@(i)
 				row = $_rows[i]
 				range(1, 11, @(j)
 					block = row[j]
-					draw_block(context, j, i, block if block !== null
+					if block !== null: draw_block(context, j, i, block
 			)[$]
 			if $_filleds.size() > 0
 				context.set_source_rgba(1.0, 1.0, 1.0, Float($_speed_to_clear - $_ticks_to_wait) / $_speed_to_clear
@@ -367,9 +366,9 @@ Stage = Class(xraft.Widget) :: @
 		$lines = 0
 		$score = 0
 		$draw(
-		$on_clear() if $on_clear !== null
+		if $on_clear !== null: $on_clear(
 	$next = @
-		next7().each((@(i) $_nexts.push(i))[$] if $_nexts.size() < 4
+		if $_nexts.size() < 4: next7().each((@(i) $_nexts.push(i))[$]
 		$_ticks_to_next = $_speed_to_next
 		$_already_held = false
 		tetriminos[$_nexts.shift()]
@@ -420,8 +419,8 @@ Stage = Class(xraft.Widget) :: @
 		$_filleds = [
 		if $_speed_to_drop > 1
 			$_speed_to_drop = $_speed_to_drop * 4 / 5
-			$_speed_to_drop = 1 if $_speed_to_drop < 1
-		$on_clear() if $on_clear !== null
+			if $_speed_to_drop < 1: $_speed_to_drop = 1
+		if $on_clear !== null: $on_clear(
 		$_sound_clear.play(
 	$fix = @
 		$_filleds = $_tetrimino.fix($_rows, $_direction, $_x, $_y
@@ -433,11 +432,11 @@ Stage = Class(xraft.Widget) :: @
 			$send($next(
 	$drop = @
 		y = $_y + 1
-		return false if $_tetrimino.conflicts($_rows, $_direction, $_x, y)
+		if $_tetrimino.conflicts($_rows, $_direction, $_x, y): return false
 		$_y = y
 		$_ticks_to_wait = $_speed_to_drop
 		$_tick = $tick_drop
-		$_sound_impact.play() if $_tetrimino.conflicts($_rows, $_direction, $_x, y + 1)
+		if $_tetrimino.conflicts($_rows, $_direction, $_x, y + 1): $_sound_impact.play(
 		true
 	$tick_clear = @
 		$_ticks_to_wait = $_ticks_to_wait - 1
@@ -445,9 +444,9 @@ Stage = Class(xraft.Widget) :: @
 			$clear(
 			$send($next(
 	$tick_fix = @
-		return if $drop()
+		if $drop(): return
 		$_ticks_to_wait = $_ticks_to_wait - 1
-		$fix() if $_ticks_to_wait <= 0
+		if $_ticks_to_wait <= 0: $fix(
 	$tick_drop = @
 		if $_pulse_drop
 			$drop(
@@ -460,11 +459,11 @@ Stage = Class(xraft.Widget) :: @
 				$_ticks_to_wait = $_speed_to_fix - $_speed_to_drop
 				$_tick = $tick_fix
 	$tick = @
-		$_ticks_to_next = $_ticks_to_next - 1 if $_ticks_to_next > 0
-		$_ticks_to_hold = $_ticks_to_hold - 1 if $_ticks_to_hold > 0
-		$_ticks_to_fade_hard_drop = $_ticks_to_fade_hard_drop - 1 if $_ticks_to_fade_hard_drop > 0
-		$_ticks_to_repeat_slide = $_ticks_to_repeat_slide - 1 if $_ticks_to_repeat_slide > 0
-		$_ticks_to_repeat_drop = $_ticks_to_repeat_drop - 1 if $_ticks_to_repeat_drop > 0
+		if $_ticks_to_next > 0: $_ticks_to_next = $_ticks_to_next - 1
+		if $_ticks_to_hold > 0: $_ticks_to_hold = $_ticks_to_hold - 1
+		if $_ticks_to_fade_hard_drop > 0: $_ticks_to_fade_hard_drop = $_ticks_to_fade_hard_drop - 1
+		if $_ticks_to_repeat_slide > 0: $_ticks_to_repeat_slide = $_ticks_to_repeat_slide - 1
+		if $_ticks_to_repeat_drop > 0: $_ticks_to_repeat_drop = $_ticks_to_repeat_drop - 1
 		if $_tetrimino !== null
 			dxs = '(0, -1, 1, 0
 			dx = 0
@@ -478,27 +477,27 @@ Stage = Class(xraft.Widget) :: @
 				if !$_tetrimino.conflicts($_rows, $_direction, x, $_y)
 					$_x = x
 					$_ghost = $_tetrimino.ghost($_rows, $_direction, $_x, $_y
-		$_hard_drop = null if $_hard_drop !== null && $_ticks_to_fade_hard_drop <= 0
+		if $_hard_drop !== null && $_ticks_to_fade_hard_drop <= 0: $_hard_drop = null
 		$_tick(
 		$draw(
 	$start = @
-		$reset() if $_tick !== null
+		if $_tick !== null: $reset(
 		$_sound_bgm.play(
 		$_timer.start(10
 		$send($next(
 	$hard_drop = @
-		return if $_tetrimino === null
+		if $_tetrimino === null: return
 		$_hard_drop = $_tetrimino
 		$_hard_drop_direction = $_direction
 		$_hard_drop_x = $_x
 		$_hard_drop_y0 = $_y
 		while true
 			y = $_y + 1
-			break if $_tetrimino.conflicts($_rows, $_direction, $_x, y)
+			if $_tetrimino.conflicts($_rows, $_direction, $_x, y): break
 			$_y = y
 		$_hard_drop_y1 = $_y
 		$_ticks_to_fade_hard_drop = $_speed_to_fade_hard_drop
-		$_sound_impact.play() if $_y > $_hard_drop_y0
+		if $_y > $_hard_drop_y0: $_sound_impact.play(
 		$fix(
 	$press_slide = @(x)
 		$_slide_pressed = $_slide_pressed | x
@@ -519,25 +518,25 @@ Stage = Class(xraft.Widget) :: @
 		$_drop_pressed = false
 		$_ticks_to_repeat_drop = 0
 	$rotate_left = @
-		return if $_tetrimino === null
+		if $_tetrimino === null: return
 		direction = ($_direction + 3) % 4
 		xy = $_tetrimino.try_rotate_left($_rows, direction, $_x, $_y
-		return if xy === null
+		if xy === null: return
 		$_direction = direction
 		$_x = xy[0]
 		$_y = xy[1]
 		$_ghost = $_tetrimino.ghost($_rows, $_direction, $_x, $_y
 	$rotate_right = @
-		return if $_tetrimino === null
+		if $_tetrimino === null: return
 		direction = ($_direction + 1) % 4
 		xy = $_tetrimino.try_rotate_right($_rows, direction, $_x, $_y
-		return if xy === null
+		if xy === null: return
 		$_direction = direction
 		$_x = xy[0]
 		$_y = xy[1]
 		$_ghost = $_tetrimino.ghost($_rows, $_direction, $_x, $_y
 	$hold = @
-		return if $_tetrimino === null || $_already_held
+		if $_tetrimino === null || $_already_held: return
 		held = $_held
 		$_held = $_tetrimino
 		$send(held === null ? $next() : held

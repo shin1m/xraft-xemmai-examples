@@ -40,8 +40,8 @@ $Indicator = Class() :: @
 		context.set_fill_rule(cairo.FillRule.EVEN_ODD
 		context.fill(
 	$refresh = @(message)
-		print("Properties Changed: " + message.get() if message !== null
-		$online = $line.get("Online" if $line !== null
+		if message !== null: print("Properties Changed: " + message.get()
+		if $line !== null: $online = $line.get("Online"
 		if $battery !== null
 			$percentage = $battery.get("Percentage"
 			$state = $battery.get("State"
@@ -61,8 +61,8 @@ $Indicator = Class() :: @
 			else if type == 2
 				$battery = device
 		)[$]
-		$line.add_properties_changed($refresh if $line !== null
-		$battery.add_properties_changed($refresh if $battery !== null
+		if $line !== null: $line.add_properties_changed($refresh
+		if $battery !== null: $battery.add_properties_changed($refresh
 		$refresh(null
 	$__initialize = @(invalidate)
 		:$^__initialize[$](

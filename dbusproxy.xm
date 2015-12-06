@@ -15,12 +15,12 @@ $Proxy = Class() :: @
 		try
 			reply = $connection.send_with_reply(message
 			result = reply(
-			throw Throwable(result.get() if result.get_type() == dbus.MESSAGE_TYPE_ERROR
+			if result.get_type() == dbus.MESSAGE_TYPE_ERROR: throw Throwable(result.get(
 			return result.get()[0]
 		finally
 			message.release(
-			reply.release() if reply !== null
-			result.release() if result !== null
+			if reply !== null: reply.release(
+			if result !== null: result.release(
 	$properties = @(method, name) dbus.Message($destination, $path, dbus.INTERFACE_PROPERTIES, method).append($interface).append(name
 	$get = @(name) $call($properties("Get", name
 	$set = @(name, value) $call($properties("Set", name).append(value

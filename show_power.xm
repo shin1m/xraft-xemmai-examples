@@ -16,8 +16,7 @@ Frame = Class(xraft.Frame) :: @
 		context.fill(
 		$indicator.draw(context, width, height
 	)[$]
-	$on_key_press = @(modifier, key, ascii)
-		$on_close() if key == xraft.Key.Q
+	$on_key_press = @(modifier, key, ascii) if key == xraft.Key.Q: $on_close(
 	$on_close = @() xraft.application().exit(
 	$invalidate_all = @
 		extent = $geometry(
