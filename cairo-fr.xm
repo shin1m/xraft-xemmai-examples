@@ -165,7 +165,7 @@ Worker = Class() :: @
 							if i._next < time.now()
 								$update(i
 								:updated = true
-							if i._next < next: next = i._next
+							if i._next < next: :next = i._next
 						catch Throwable e
 							print(e
 					)[$]
