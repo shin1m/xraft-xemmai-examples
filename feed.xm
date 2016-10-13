@@ -3,8 +3,8 @@ print = system.out.write_line
 libxml = Module("libxml"
 
 ElementReader = Class(libxml.TextReader) :: @
-	$__initialize = @(source)
-		:$^__initialize[$](source
+	$__initialize = @(*arguments)
+		:$^__initialize[$](*arguments
 		$_type = null
 	$read_next = @() $_type = $read() ? $node_type() : null
 	$type = @() $_type
@@ -113,7 +113,8 @@ Request = Class() :: @
 		x.ttl = ""
 		x.image_url = ""
 		x.items = {
-		$_reader = ElementReader(source
+		http = libxml.Http(source
+		$_reader = ElementReader(http.read, http.close, source, "", 0
 		try
 			$parse_elements(root_elements, x
 			x

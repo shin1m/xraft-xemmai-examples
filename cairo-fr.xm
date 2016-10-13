@@ -534,24 +534,22 @@ List = Class(xraft.Frame) :: @
 
 xraft.main(system.arguments, @(application) cairo.main(@
 	list = List([
-		Channel("http://www.linux.com/rss/feeds.php"
-		Channel("http://srad.jp/sradjs.rss"
+		Channel("https://www.linux.com/feeds/rss"
+		Channel("http://rss.rssad.jp/rss/slashdot/slashdot.rss"
+		Channel("https://mag.osdn.jp/rss"
 		Channel("http://japan.cnet.com/rss/index.rdf", "http://japan.cnet.com/media/c/2010/image/header/cnet_logo.gif"
 		Channel("http://www3.asahi.com/rss/index.rdf", "http://www.asahi.com/images08/common/logo.gif"
-		Channel("http://feed.nikkeibp.co.jp/rss/nikkeibp/index.rdf", "http://www.nikkeibp.co.jp/images/bpnet/2011/logo/screen.png"
-		Channel("http://rss.itmedia.co.jp/rss/2.0/enterprise.xml", "http://a3.twimg.com/profile_images/575343801/ITmedia_official_bigger.gif"
-		Channel("http://rss.itmedia.co.jp/rss/2.0/plusd.xml", "http://a3.twimg.com/profile_images/575343801/ITmedia_official_bigger.gif"
+		Channel("http://www.nikkeibp.co.jp/rss/index.rdf"
+		Channel("http://rss.itmedia.co.jp/rss/2.0/enterprise.xml"
+		Channel("http://rss.itmedia.co.jp/rss/2.0/plusd.xml"
 		Channel("http://www.atmarkit.co.jp/rss/rss.xml"
 		Channel("http://codezine.jp/rss/new/20/index.xml", "http://codezine.jp/static/common/images/logo.gif"
-		Channel("http://sourceforge.jp/magazine/rss", "http://a3.twimg.com/profile_images/279265289/sfjp_icon_125x125_normal.png"
 		Channel("http://rss.rssad.jp/rss/headline/headline.rdf", "http://www.watch.impress.co.jp/header/0804/img/headline_logo.gif"
-		Channel("http://feed.rssad.jp/rss/gigazine/rss_atom", "http://gigazine.jp/images/logo.png"
-		Channel("http://feeds.gizmodo.jp/rss/gizmodo/index.xml", "http://www.gizmodo.jp/sp/images/common/site_icon_gizmodo.png"
+		Channel("http://feed.rssad.jp/rss/gigazine/rss_atom"
+		Channel("http://feeds.gizmodo.jp/rss/gizmodo/index.xml"
 		Channel("http://japanese.engadget.com/rss.xml", "http://a1.twimg.com/profile_images/468313888/very_sm_e_normal.png"
-		Channel("http://developers.google.com/dashboard/rss"
-		Channel("http://blogs.apache.org/foundation/feed/entries/atom", "http://www.apache.org/images/feather.gif"
-		Channel("http://sxpdata.microsoft.com/feeds/MSDNNews/MSDNNews", "http://i3.msdn.microsoft.com/platform/masterpages/msdn10/logo_msdn.png"
-		Channel("http://python.org/channews.rdf"
+		Channel("https://www.infoq.com/feed"
+		Channel("http://www.publickey1.jp/atom.xml"
 	application.add(list
 	list.show(
 	application.run(
