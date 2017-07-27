@@ -11,12 +11,18 @@ $Proxy = Class() :: @
 	$add_properties_changed = @(callable) $connection.add_match(dbus.MESSAGE_TYPE_SIGNAL, $path, dbus.INTERFACE_PROPERTIES, "PropertiesChanged", callable
 	$remove_properties_changed = @() $connection.remove_match(dbus.MESSAGE_TYPE_SIGNAL, $path, dbus.INTERFACE_PROPERTIES, "PropertiesChanged"
 	$method = @(method) dbus.Message($destination, $path, $interface, method
+	$send = @(message, callable)
+		try
+			$connection.send_with_reply(message)(callable
+		finally
+			message.release(
 	$call = @(message)
 		try
 			reply = $connection.send_with_reply(message
 			result = reply(
-			if result.get_type() == dbus.MESSAGE_TYPE_ERROR: throw Throwable(result.get(
-			return result.get()[0]
+			if result.get_type() == dbus.MESSAGE_TYPE_ERROR: throw Throwable(result.get().__string(
+			a = result.get(
+			a.size() > 0 ? a[0] : null
 		finally
 			message.release(
 			if reply !== null: reply.release(
