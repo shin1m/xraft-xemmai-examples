@@ -17,26 +17,27 @@ Hello = Class(xraft.Frame) :: @
 		if key == xraft.Key.Q
 			$on_close(
 		else if key == xraft.Key.T
-			if $thread !== null: $thread.join(
+			$thread !== null && $thread.join(
 			$thread = Thread(@
 				:$count = :$count + 1
 				extent = :$geometry(
 				:$invalidate(0, 0, extent.width(), extent.height()
 		else if key == xraft.Key.P
-			if $thread !== null: $thread.join(
+			$thread !== null && $thread.join(
 			application = xraft.application(
 			$thread = Thread(@
 				application.post(@
 					::$count = ::$count + 1
 					extent = ::$geometry(
 					::$invalidate(0, 0, extent.width(), extent.height()
-	$on_button_press = @(modifier, button, x, y) if button == xraft.Button.BUTTON3: $on_close(
+	$on_button_press = @(modifier, button, x, y) if button == xraft.Button.BUTTON3
+		$on_close(
 	$on_pointer_move = @(modifier, x, y)
 		$cursor = xraft.Point(x, y
 		extent = $geometry(
 		$invalidate(0, 0, extent.width(), extent.height()
 	$on_close = @
-		if $thread !== null: $thread.join(
+		$thread !== null && $thread.join(
 		xraft.application().exit(
 	$__initialize = @(text)
 		:$^__initialize[$](

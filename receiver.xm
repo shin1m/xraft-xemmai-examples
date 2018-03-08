@@ -25,8 +25,8 @@ Frame = Class(xraft.Frame) :: @
 		context.move_to(0.0, extents[3]
 		context.show_text($message
 	)[$]
-	$on_key_press = @(modifier, key, ascii) if key == xraft.Key.Q: $on_close(
-	$on_close = @() xraft.application().exit(
+	$on_key_press = @(modifier, key, ascii) key == xraft.Key.Q && $on_close(
+	$on_close = @ xraft.application().exit(
 	$__initialize = @(connection)
 		:$^__initialize[$](
 		$caption__("Receiver"
@@ -38,7 +38,7 @@ Frame = Class(xraft.Frame) :: @
 			$invalidate(0, 0, extent.width(), extent.height()
 		)[$]
 
-xraft.main(system.arguments, @(application) cairo.main(@() dbus.main(@
+xraft.main(system.arguments, @(application) cairo.main(@ dbus.main(@
 	try
 		connection = dbus.Connection(dbus.BusType.SESSION
 		xraftdbus.watch(connection

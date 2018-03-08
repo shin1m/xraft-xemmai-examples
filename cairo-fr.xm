@@ -14,7 +14,8 @@ memory = Module("memory"
 libxml = Module("libxml"
 mime = Module("mime"
 
-range = @(i, j, callable) for ; i < j; i = i + 1: callable(i
+range = @(i, j, callable) for ; i < j; i = i + 1
+	callable(i
 
 max = @(x, y) x > y ? x : y
 min = @(x, y) x < y ? x : y
@@ -29,7 +30,7 @@ retrieve = @(url)
 		buffer = Bytes(1024
 		while true
 			n = http.read(buffer, 0, buffer.size()
-			if n <= 0: break
+			n > 0 || break
 			stream.write(buffer, 0, n
 		stream
 	finally
@@ -54,14 +55,14 @@ format_time = @(t)
 	time.format_rfc2822(time.decompose(t + Float(o)), o
 
 create_thumbnail = @(image, width, height)
-	if image === null: return null
+	image === null && return
 	image.rewind(
 	try
 		s0 = cairo.ImageSurface.create_from_stream(image.read
 	catch Throwable e
 		print(e
 		e.dump(
-		return null
+		return
 	try
 		w0 = Float(s0.get_width(
 		h0 = Float(s0.get_height(
@@ -124,7 +125,8 @@ Worker = Class() :: @
 				p = 3600.0 * 24.0 * 365.0
 			else
 				p = 3600.0
-			if c.update_frequency != "": p = p / Float(c.update_frequency)
+			if c.update_frequency != ""
+				p = p / Float(c.update_frequency)
 			b = parse_time(c.update_base, date
 			channel._next = b + math.ceil((time.now() - b) / p) * p
 		url = c.image_url != "" ? c.image_url : channel._default_image
@@ -160,17 +162,18 @@ Worker = Class() :: @
 				updated = false
 				try
 					$_channels.each((@(i)
-						if $_done: throw null
+						$_done && throw null
 						try
 							if i._next < time.now()
 								$update(i
 								:updated = true
-							if i._next < next: :next = i._next
+							if i._next < next
+								:next = i._next
 						catch Throwable e
 							print(e
 					)[$]
 				catch Null e
-				if $_done: break
+				$_done && break
 				next = next - time.now()
 				if next < 300.0
 					next = 300.0
@@ -200,7 +203,7 @@ Worker = Class() :: @
 		$_mutex = threading.Mutex(
 		$_condition = threading.Condition(
 		$share(
-	$start = @() $_thread = Thread($run
+	$start = @ $_thread = Thread($run
 	$terminate = @
 		$_mutex.acquire(
 		try
@@ -233,7 +236,7 @@ Color = Class() :: @
 		$blue = blue
 
 List = Class(xraft.Frame) :: @
-	$update_caption = @() $caption__("Feed Reader " + $_worker._channels.size() + " Channels " + $_items.size() + " Items"
+	$update_caption = @ $caption__("Feed Reader " + $_worker._channels.size() + " Channels " + $_items.size() + " Items"
 	$create_thumbnail = @(channel) channel.create_thumbnail($_image_width, $_item_height
 	$sort0 = @
 		$_items.sort(@(x, y)
@@ -241,7 +244,7 @@ List = Class(xraft.Frame) :: @
 				:$_sort.each(@(key)
 					a = x.(key[0])
 					b = y.(key[0])
-					if a != b: throw a < b ^ key[1]
+					a != b && throw a < b ^ key[1]
 				false
 			catch Boolean b
 				b
@@ -255,7 +258,7 @@ List = Class(xraft.Frame) :: @
 				key = sort[i]
 				a = x.(key[0])
 				b = y.(key[0])
-				if a != b: return a < b ^ key[1]
+				a != b && return a < b ^ key[1]
 			false
 		extent = $geometry(
 		$invalidate(0, 0, extent.width(), extent.height()
@@ -291,7 +294,7 @@ List = Class(xraft.Frame) :: @
 					image = [reader.read_element("image")]
 					if image[0] != ""
 						channel._image = memory.Memory(
-						mime.base64_decode(@() image.size() > 0 ? image.shift() : null, channel._image.write
+						mime.base64_decode(@ image.size() > 0 ? image.shift() : null, channel._image.write
 					reader.end_element(
 					channels.push(channel
 					url2channel[url] = channel
@@ -354,19 +357,22 @@ List = Class(xraft.Frame) :: @
 	$update_current = @
 		if $.?_pressed || $_delta == 0
 			i = floor(Float($_y + $_position) / $_item_height
-			if i >= $_items.size(): i = -1
+			if i >= $_items.size()
+				i = -1
 		else
 			i = -1
-		if i == $_current: return
+		i == $_current && return
 		$invalidate_row(
 		$_current = i
 		$invalidate_row(
 	$position__ = @(y)
 		extent = $geometry(
 		bottom = ceil(Float($_items.size()) * $_item_height) - extent.height()
-		if y > bottom: y = bottom
-		if y < 0: y = 0
-		if y == $_position: return
+		if y > bottom
+			y = bottom
+		if y < 0
+			y = 0
+		y == $_position && return
 		$scroll(0, 0, extent.width(), extent.height(), 0, $_position - y
 		$_position = y
 		$update_current(
@@ -431,7 +437,7 @@ List = Class(xraft.Frame) :: @
 		try
 			$_sort = sort_keys[key]
 		catch Throwable t
-			if key == xraft.Key.Q: $on_close(
+			key == xraft.Key.Q && $on_close(
 			return
 		$sort(
 	$on_button_press = @(modifier, button, x, y)
@@ -440,7 +446,7 @@ List = Class(xraft.Frame) :: @
 		$_delta = 0
 		if button == xraft.Button.BUTTON1
 			i = floor(Float(y + $_position) / $_item_height
-			if i < $_items.size(): os.system("navigate " + $_items[i]._key[1] + " &"
+			i < $_items.size() && os.system("navigate " + $_items[i]._key[1] + " &"
 		else if button == xraft.Button.BUTTON3
 			$_pressed = y + $_position
 			$_last_tick = time.tick(
@@ -456,11 +462,11 @@ List = Class(xraft.Frame) :: @
 		if button == xraft.Button.BUTTON3 && $.?_pressed
 			$.~_pressed
 			dt = time.tick() - $_last_tick
-			if $_moved
-				if dt > 20: $_delta = $delta(dt, y
-			else
+			if !$_moved
 				$_delta = $delta(max(dt, 5), y
-			if $_delta != 0: $_timer.start(20
+			else if dt > 20
+				$_delta = $delta(dt, y
+			$_delta != 0 && $_timer.start(20
 			$update_current(
 	$on_pointer_enter = @(modifier, x, y, mode, detail)
 		$_y = y
@@ -511,7 +517,7 @@ List = Class(xraft.Frame) :: @
 				news.push(c
 		news.each(@(c) :$create_thumbnail(c
 		$_items = [
-		items.each(@(i) if i._channel.?_thumbnail: :$_items.push(i
+		items.each(@(i) i._channel.?_thumbnail && :$_items.push(i
 		$_sort = sort_keys[xraft.Key.R]
 		$_position = 0
 		$_current = -1
@@ -520,7 +526,8 @@ List = Class(xraft.Frame) :: @
 			if !$.?_pressed
 				position = $_position
 				$position__($_position - $_delta
-				if $_position == position: $_delta = 0
+				if $_position == position
+					$_delta = 0
 			sign = $_delta < 0 ? -1 : 1
 			$_delta = sign * max(abs($_delta) - 2, 0)
 			if $_delta == 0

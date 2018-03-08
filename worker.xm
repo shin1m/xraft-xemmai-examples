@@ -38,7 +38,7 @@ Worker = Class() :: @
 				print("waiting..."
 				$_condition.wait($_mutex
 				print("done."
-				if $_done: break
+				$_done && break
 				$_condition.wait($_mutex, 1000
 		finally
 			$_mutex.release(
@@ -48,7 +48,7 @@ Worker = Class() :: @
 		$_mutex = threading.Mutex(
 		$_condition = threading.Condition(
 		$share(
-	$start = @() $_thread = Thread($run
+	$start = @ $_thread = Thread($run
 	$terminate = @
 		$_mutex.acquire(
 		try
@@ -75,7 +75,7 @@ Frame = Class(xraft.Frame) :: @
 		context.move_to((width - extents[2]) * 0.5, (height + extents[3]) * 0.5
 		context.show_text($_message
 	)[$]
-	$on_key_press = @(modifier, key, ascii) if key == xraft.Key.Q: $on_close(
+	$on_key_press = @(modifier, key, ascii) key == xraft.Key.Q && $on_close(
 	$on_close = @
 		$_worker.terminate(
 		xraft.application().exit(

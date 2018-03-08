@@ -16,8 +16,8 @@ Frame = Class(xraft.Frame) :: @
 		context.fill(
 		$indicator.draw(context, width, height
 	)[$]
-	$on_key_press = @(modifier, key, ascii) if key == xraft.Key.Q: $on_close(
-	$on_close = @() xraft.application().exit(
+	$on_key_press = @(modifier, key, ascii) key == xraft.Key.Q && $on_close(
+	$on_close = @ xraft.application().exit(
 	$invalidate_all = @
 		extent = $geometry(
 		$invalidate(0, 0, extent.width(), extent.height()
@@ -26,7 +26,7 @@ Frame = Class(xraft.Frame) :: @
 		$caption__("Battery"
 		$indicator = power.Indicator($invalidate_all
 
-xraft.main(system.arguments, @(application) cairo.main(@() dbus.main(@
+xraft.main(system.arguments, @(application) cairo.main(@ dbus.main(@
 	try
 		frame = Frame(
 		frame.move(xraft.Rectangle(0, 0, 50, 50

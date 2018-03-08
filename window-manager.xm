@@ -13,7 +13,8 @@ xraftcairo = Module("xraftcairo"
 dbus = Module("dbus"
 power = Module("power"
 
-range = @(i, j, callable) for ; i < j; i = i + 1: callable(i
+range = @(i, j, callable) for ; i < j; i = i + 1
+	callable(i
 
 reverse_each = @(array, callable)
 	i = array.size(
@@ -25,7 +26,7 @@ first = @(array, predicate)
 	n = array.size(
 	for i = 0; i < n; i = i + 1
 		a = array[i]
-		if predicate(a): return a
+		predicate(a) && return a
 
 min = @(x, y) x < y ? x : y
 max = @(x, y) x > y ? x : y
@@ -33,7 +34,7 @@ max = @(x, y) x > y ? x : y
 floor = @(x) Integer(math.floor(x
 ceil = @(x) Integer(math.ceil(x
 
-launch = @(command) @() os.system(command + " &"
+launch = @(command) @ os.system(command + " &"
 
 create_icon = @(path, width, height)
 	s0 = cairo.ImageSurface.create_from_file(path
@@ -102,7 +103,8 @@ Menu = Class(xraft.Shell) :: @
 	$close = @
 		$_current = -1
 		application = xraft.application(
-		for i = 0;; i = i + 1: if application.at(i) === $: break
+		for i = 0;; i = i + 1
+			application.at(i) === $ && break
 		application.remove(i
 	$invalidate_current = @
 		h = $item_height(
@@ -135,7 +137,7 @@ Menu = Class(xraft.Shell) :: @
 	$on_button_press = @(modifier, button, x, y)
 		if button == xraft.Button.BUTTON1 || button == xraft.Button.BUTTON3
 			extent = $geometry(
-			if x < 0 || y < 0 || x >= extent.width() || y >= extent.height(): $close(
+			(x < 0 || y < 0 || x >= extent.width() || y >= extent.height()) && $close(
 	$on_pointer_enter = @(modifier, x, y, mode, detail) $on_pointer_move(modifier, x, y
 	$on_pointer_leave = @(modifier, x, y, mode, detail)
 		if $_current != -1
@@ -149,12 +151,13 @@ Menu = Class(xraft.Shell) :: @
 			i = -1
 		else
 			i = Integer(Float(y) / h
-			if i >= $item_count(): i = -1
+			if i >= $item_count()
+				i = -1
 		if i != $_current
 			$invalidate_current(
 			$_current = i
 			$invalidate_current(
-	$__initialize = @()
+	$__initialize = @
 		:$^__initialize[$](
 		face = cairo.ToyFontFace("Sans", cairo.FontSlant.NORMAL, cairo.FontWeight.NORMAL
 		matrix = cairo.Matrix(
@@ -168,14 +171,15 @@ Menu = Class(xraft.Shell) :: @
 		width = 0.0
 		range(0, n, @(i)
 			w = :$item_width(i
-			if w > width: :width = w
+			if w > width
+				:width = w
 		extent = xraft.Extent(8 + ceil(width), 8 + ceil($item_height() * Float(n))
 		application = xraft.application(
 		screen = application.screen(
-		if point.x() + extent.width() > screen.width(): point.x__(screen.width() - extent.width()
-		if point.x() < 0: point.x__(0
-		if point.y() + extent.height() > screen.height(): point.y__(screen.height() - extent.height()
-		if point.y() < 0: point.y__(0
+		point.x() + extent.width() > screen.width() && point.x__(screen.width() - extent.width()
+		point.x() < 0 && point.x__(0
+		point.y() + extent.height() > screen.height() && point.y__(screen.height() - extent.height()
+		point.y() < 0 && point.y__(0
 		$move(xraft.Rectangle(point, extent
 		application.add($
 		application.pointer_grabber__($
@@ -190,11 +194,12 @@ Launcher = Class(Menu) :: @
 			width = 0.0
 			$v_texts.each(@(text)
 				extents = font.text_extents(text
-				if extents[2] > width: :width = extents[2]
+				if extents[2] > width
+					:width = extents[2]
 			36.0 + width
 
-	$item_count = @() $_items.size(
-	$item_height = @() $_height
+	$item_count = @ $_items.size(
+	$item_height = @ $_height
 	$item_width = @(i) $_items[i].width($_font
 	$item_draw = @(context, i, x, y, width)
 		root = xraftwm.root(
@@ -240,8 +245,8 @@ Launcher = Class(Menu) :: @
 			Item(null, ["Exit"], xraftwm.root().exit
 
 List = Class(Menu) :: @
-	$item_count = @() $_items.size(
-	$item_height = @() $_height
+	$item_count = @ $_items.size(
+	$item_height = @ $_height
 	$item_text = @(i)
 		item = $_items[i]
 		geometry = item.geometry(
@@ -294,7 +299,7 @@ Client = Class(xraftwm.Client) :: @
 		$press = @(parent, x, y)
 			parent._pressed = $
 			$invalidate(parent
-		$cursor = @() xraft.application().cursor_arrow(
+		$cursor = @ xraft.application().cursor_arrow(
 		$paint = @(context, parent)
 			root = parent.parent(
 			if $ === parent._pointed
@@ -327,11 +332,13 @@ Client = Class(xraftwm.Client) :: @
 		$press = @(parent, x, y)
 			extent = parent.geometry(
 			dx = -x
-			if $v_horizontal == xraftwm.Side.FAR: dx = dx + extent.width()
+			if $v_horizontal == xraftwm.Side.FAR
+				dx = dx + extent.width()
 			dy = -y
-			if $v_vertical == xraftwm.Side.FAR: dy = dy + extent.height()
+			if $v_vertical == xraftwm.Side.FAR
+				dy = dy + extent.height()
 			xraftwm.root().resize(parent, $v_horizontal, dx, $v_vertical, dy, $cursor()
-		$cursor = @() $v_cursor[xraft.application()](
+		$cursor = @ $v_cursor[xraft.application()](
 
 	v_part_title = Part(xraftwm.Side.BOTH, xraftwm.Side.BOTH, xraft.Application.cursor_arrow
 	v_part_content = Part(xraftwm.Side.NONE, xraftwm.Side.NONE, xraft.Application.cursor_x
@@ -346,15 +353,15 @@ Client = Class(xraftwm.Client) :: @
 
 	$pointed = @(x, y)
 		button = first($_buttons, @(button) button.contains(x, y
-		if button !== null: return button
+		button !== null && return button
 		extent = $geometry(
 		w = extent.width(
 		h = extent.height(
-		if $shaded(): return x < 4 ? v_part_left : x < w - 4 ? v_part_title : v_part_right
-		if x >= 4 && x < w - 4 && y >= 4 && y < 20: return v_part_title
-		if x >= 4 && x < w - 4 && y >= 20 && y < h - 4: return v_part_content
-		if y < 20: return x < 20 ? v_part_left_top : x < w - 20 ? v_part_top : v_part_right_top
-		if y < h - 20: return x < 20 ? v_part_left : v_part_right
+		$shaded() && return x < 4 ? v_part_left : x < w - 4 ? v_part_title : v_part_right
+		x >= 4 && x < w - 4 && y >= 4 && y < 20 && return v_part_title
+		x >= 4 && x < w - 4 && y >= 20 && y < h - 4 && return v_part_content
+		y < 20 && return x < 20 ? v_part_left_top : x < w - 20 ? v_part_top : v_part_right_top
+		y < h - 20 && return x < 20 ? v_part_left : v_part_right
 		x < 20 ? v_part_left_bottom : x < w - 20 ? v_part_bottom : v_part_right_bottom
 	$maximize = @
 		if $_normal === null
@@ -395,7 +402,7 @@ Client = Class(xraftwm.Client) :: @
 			:x = x - button.v_width
 			button.v_x = x
 		root = $parent(
-		if root === null: return
+		root === null && return
 		if root._resizing === null
 			point = $from_screen(xraft.application().pointer(
 			$on_pointer_move(xraft.Modifier.NONE, point.x(), point.y()
@@ -431,33 +438,33 @@ Client = Class(xraftwm.Client) :: @
 		$_buttons.each(@(button) button.paint(context, :$
 	)[$]
 	$on_button_press = @(modifier, button, x, y)
-		if $_pressed !== null || $parent()._resizing !== null: return
+		($_pressed !== null || $parent()._resizing !== null) && return
 		if button == xraft.Button.BUTTON1
 			$_pointed.press($, x, y
 		else if button == xraft.Button.BUTTON3
 			$shaded__(!$shaded(
 	$on_button_release = @(modifier, button, x, y)
-		if $_pressed === null: return
+		$_pressed === null && return
 		if $_pointed === $_pressed: $_pressed.v_action(
 		$_pressed.invalidate($
 		$_pressed = null
 		$cursor__($_pointed.cursor(
 	$on_pointer_enter = @(modifier, x, y, mode, detail)
 		root = $parent(
-		if root._resizing !== null: return
-		if $_pressed === null && detail != xraft.CrossDetail.INNER: root.active__($
+		root._resizing !== null && return
+		$_pressed === null && detail != xraft.CrossDetail.INNER && root.active__($
 		$on_pointer_move(modifier, x, y
 	$on_pointer_leave = @(modifier, x, y, mode, detail)
-		if $parent()._resizing !== null: return
+		$parent()._resizing !== null && return
 		$on_pointer_move(modifier, x, y
 	$on_pointer_move = @(modifier, x, y)
-		if $parent()._resizing !== null: return
+		$parent()._resizing !== null && return
 		pointed = $pointed(x, y
-		if pointed === $_pointed: return
+		pointed === $_pointed && return
 		$_pointed.invalidate($
 		$_pointed = pointed
 		$_pointed.invalidate($
-		if $_pressed === null: $cursor__($_pointed.cursor(
+		$_pressed === null && $cursor__($_pointed.cursor(
 	$on_activate = $invalidate_all
 	$on_deactivate = $invalidate_all
 	$on_name = $invalidate_all
@@ -520,20 +527,20 @@ Root = Class(xraftwm.Root) :: @
 		g.draw(0, 0, $_wall0, 0, 0, $_wall0.width(), $_wall0.height()
 		xraftcairo.draw_on_graphics(g, $draw
 	$on_button_press = @(modifier, button, x, y)
-		if $_resizing !== null: return
+		$_resizing !== null && return
 		if button == xraft.Button.BUTTON1
 			$_launcher.popup($to_screen(xraft.Point(x, y
 		else if button == xraft.Button.BUTTON3
 			$_list.popup($to_screen(xraft.Point(x, y
 	$on_button_release = @(modifier, button, x, y)
-		if $_resizing === null || button != xraft.Button.BUTTON1: return
+		($_resizing === null || button != xraft.Button.BUTTON1) && return
 		$_resizing = null
 		application = xraft.application(
 		application.pointer_grabber__(null
 		$cursor__(application.cursor_x(
 	$on_pointer_enter = @(modifier, x, y, mode, detail) $active__(null
 	$on_pointer_move = @(modifier, x, y)
-		if $_resizing === null: return
+		$_resizing === null && return
 		client = $_resizing[0]
 		horizontal = $_resizing[1]
 		x = x + $_resizing[2]
@@ -541,18 +548,14 @@ Root = Class(xraftwm.Root) :: @
 		y = y + $_resizing[4]
 		screen = xraft.application().screen(
 		geometry = client.geometry(
+		snap = @(sw, gx, gw, x)
+			gx >= 0 && x >= -16 && x < 0 ? 0 :
+			gx + gw <= sw && x + gw <= sw + 16 && x + gw > sw ? sw - gw :
+			x
 		if horizontal == xraftwm.Side.BOTH
-			sw = screen.width(
-			gx = geometry.x(
-			gw = geometry.width(
-			if gx >= 0 && x >= -16 && x < 0: x = 0
-			if gx + gw <= sw && x + gw <= sw + 16 && x + gw > sw: x = sw - gw
+			x = snap(screen.width(), geometry.x(), geometry.width(), x
 		if vertical == xraftwm.Side.BOTH
-			sh = screen.height(
-			gy = geometry.y(
-			gh = geometry.height(
-			if gy >= 0 && y >= -16 && y < 0: y = 0
-			if gy + gh <= sh && y + gh <= sh + 16 && y + gh > sh: y = sh - gh
+			y = snap(screen.height(), geometry.y(), geometry.height(), y
 		client.move(horizontal, x, vertical, y
 	$on_client = Client
 	$__initialize = @
@@ -592,10 +595,10 @@ Root = Class(xraftwm.Root) :: @
 		$_power = power.Indicator($invalidate_bar
 	$remove = @(i)
 		:$^remove[$](i
-		if $_exiting: $continue_exit(
+		$_exiting && $continue_exit(
 	$continue_exit = @
 		try
-			$list_clients().each(@(x) if x.closable(): throw x
+			$list_clients().each(@(x) x.closable() && throw x
 		catch xraftwm.Client client
 			client.close(
 			return
@@ -605,7 +608,7 @@ Root = Class(xraftwm.Root) :: @
 		items = [
 		range(0, $count(), @(i)
 			child = :$at(i
-			if child.@.^ === xraftwm.Client: items.unshift(child
+			child.@.^ === xraftwm.Client && items.unshift(child
 		items
 	$exit = @
 		$_exiting = true
@@ -615,7 +618,7 @@ Root = Class(xraftwm.Root) :: @
 		xraft.application().pointer_grabber__($
 		$cursor__(cursor
 
-xraft.main(system.arguments, @(application) cairo.main(@() dbus.main(@
+xraft.main(system.arguments, @(application) cairo.main(@ dbus.main(@
 	try
 		Root().run(
 	catch Throwable e

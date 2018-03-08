@@ -27,13 +27,13 @@ Frame = Class(xraft.Frame) :: @
 		context.show_text("Type keys"
 	)[$]
 	$on_key_press = @(modifier, key, ascii) $sender.emit_message(String.from_code(ascii
-	$on_close = @() xraft.application().exit(
+	$on_close = @ xraft.application().exit(
 	$__initialize = @(connection)
 		:$^__initialize[$](
 		$caption__("Sender"
 		$sender = Sender(connection
 
-xraft.main(system.arguments, @(application) cairo.main(@() dbus.main(@
+xraft.main(system.arguments, @(application) cairo.main(@ dbus.main(@
 	try
 		connection = dbus.Connection(dbus.BusType.SESSION
 		xraftdbus.watch(connection

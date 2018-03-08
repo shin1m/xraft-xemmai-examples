@@ -14,15 +14,15 @@ Hello = Class(xraft.Frame) :: @
 		g.draw((extent.width() - w) / 2, (extent.height() - h) / 2 + font.ascent(), $text
 	$on_key_press = @(modifier, key, ascii)
 		print(key
-		if key == xraft.Key.Q: $on_close(
+		key == xraft.Key.Q && $on_close(
 	$on_button_press = @(modifier, button, x, y)
 		print(button
-		if button == xraft.Button.BUTTON3: $on_close(
+		button == xraft.Button.BUTTON3 && $on_close(
 	$on_pointer_move = @(modifier, x, y)
 		$cursor = xraft.Point(x, y
 		extent = $geometry(
 		$invalidate(0, 0, extent.width(), extent.height()
-	$on_close = @() xraft.application().exit(
+	$on_close = @ xraft.application().exit(
 	$__initialize = @(text)
 		:$^__initialize[$](
 		$foreground = xraft.Color("blue"
