@@ -542,7 +542,7 @@ List = Class(xraft.Frame) :: @
 xraft.main(system.arguments, @(application) cairo.main(@
 	list = List([
 		Channel("https://www.linux.com/feeds/rss"
-		Channel("http://rss.rssad.jp/rss/slashdot/slashdot.rss"
+		Channel("https://srad.jp/sradjp.rss"
 		Channel("https://mag.osdn.jp/rss"
 		Channel("http://japan.cnet.com/rss/index.rdf", "http://japan.cnet.com/media/c/2010/image/header/cnet_logo.gif"
 		Channel("http://www3.asahi.com/rss/index.rdf", "http://www.asahi.com/images08/common/logo.gif"
