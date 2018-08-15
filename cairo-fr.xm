@@ -278,25 +278,22 @@ List = Class(xraft.Frame) :: @
 		$_items = items
 		$sort(
 		$update_caption(
-	$load = @(channels, items)
+	$load = @(url2channel, items)
 		reader = feed.ElementReader(system.script + ".session"
 		try
 			reader.read_next(
 			reader.start_element("session"
-			url2channel = {
 			if reader.start_element("channels")
 				while reader.is_start_element("channel")
 					reader.read_next(
 					url = reader.read_element("url"
-					default_image = reader.read_element("default-image"
-					channel = Channel(url, default_image == "" ? null : default_image
+					channel = Channel(url
 					channel._next = parse_time(reader.read_element("next"
 					image = [reader.read_element("image")]
 					if image[0] != ""
 						channel._image = memory.Memory(
 						mime.base64_decode(@ image.size() > 0 ? image.shift() : null, channel._image.write
 					reader.end_element(
-					channels.push(channel
 					url2channel[url] = channel
 				reader.end_element(
 			if reader.start_element("items")
@@ -325,7 +322,6 @@ List = Class(xraft.Frame) :: @
 			$_worker._channels.each(@(c)
 				writer.start_element("channel"
 				writer.write_element("url", c._url
-				writer.write_element("default-image", c._default_image === null ? "" : c._default_image
 				writer.write_element("next", time.format_xsd(time.decompose(c._next), 0, 3)
 				writer.start_element("image"
 				if c._image !== null
@@ -498,15 +494,13 @@ List = Class(xraft.Frame) :: @
 		$_image_width = 48.0
 		$_inactive = [Color(1.0, 1.0, 1.0), Color(0.0, 0.0, 0.0)
 		$_active = [Color(0.25, 0.375, 0.75), $_inactive[0]
-		channels0 = [
+		olds = {
 		items = [
 		try
-			$load(channels0, items
+			$load(olds, items
 		catch Throwable e
 			print(e
 			e.dump(
-		olds = {
-		channels0.each(@(c) olds[c._url] = c
 		news = [
 		channels.each(@(c)
 			try
@@ -515,7 +509,7 @@ List = Class(xraft.Frame) :: @
 				news.push(c0
 			catch Throwable e
 				news.push(c
-		news.each(@(c) :$create_thumbnail(c
+		news.each($create_thumbnail
 		$_items = [
 		items.each(@(i) i._channel.?_thumbnail && :$_items.push(i
 		$_sort = sort_keys[xraft.Key.R]
@@ -557,6 +551,7 @@ xraft.main(system.arguments, @(application) cairo.main(@
 		Channel("http://japanese.engadget.com/rss.xml", "http://a1.twimg.com/profile_images/468313888/very_sm_e_normal.png"
 		Channel("https://www.infoq.com/feed"
 		Channel("http://www.publickey1.jp/atom.xml"
+		Channel("https://news.ycombinator.com/rss"
 	application.add(list
 	list.show(
 	application.run(

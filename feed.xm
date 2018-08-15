@@ -56,6 +56,7 @@ Request = Class() :: @
 		$_reader.read_next(
 	image_elements = {
 		"url": @(x) x.image_url = $_reader.read_element_text(
+	image_elements.share(
 	item_elements = {
 		"title": @(x) x.title = $_reader.read_element_text(
 		"link": @(x) x.link = $_reader.read_element_text(
@@ -63,6 +64,7 @@ Request = Class() :: @
 		"date": @(x) x.date = $_reader.read_element_text(
 		"pubDate": @(x) x.date = $_reader.read_element_text(
 		"pubdate": @(x) x.date = $_reader.read_element_text(
+	item_elements.share(
 	$parse_item = @(x)
 		item = Object(
 		item.title = item.link = item.guid = item.date = ""
@@ -79,10 +81,12 @@ Request = Class() :: @
 		"ttl": @(x) x.ttl = $_reader.read_element_text(
 		"image": @(x) $parse_elements(image_elements, x
 		"item": @(x) $parse_item(x
+	channel_elements.share(
 	rss_elements = {
 		"channel": @(x) $parse_elements(channel_elements, x
 		"image": @(x) $parse_elements(image_elements, x
 		"item": @(x) $parse_item(x
+	rss_elements.share(
 	entry_elements = {
 		"title": @(x) x.title = $_reader.read_element_text(
 		"link": @(x)
@@ -90,6 +94,7 @@ Request = Class() :: @
 			$_reader.read_next(
 		"id": @(x) x.guid = $_reader.read_element_text(
 		"updated": @(x) x.date = $_reader.read_element_text(
+	entry_elements.share(
 	$parse_entry = @(x)
 		item = Object(
 		item.title = item.link = item.guid = item.date = ""
@@ -102,10 +107,12 @@ Request = Class() :: @
 		"updated": @(x) x.date = $_reader.read_element_text(
 		"icon": @(x) x.image_url = $_reader.read_element_text(
 		"entry": @(x) $parse_entry(x
+	feed_elements.share(
 	root_elements = {
 		"RDF": @(x) $parse_elements(rss_elements, x
 		"rss": @(x) $parse_elements(rss_elements, x
 		"feed": @(x) $parse_elements(feed_elements, x
+	root_elements.share(
 	$__call = @(source)
 		x = Object(
 		x.title = ""
