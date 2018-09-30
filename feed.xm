@@ -135,6 +135,6 @@ $ElementReader = ElementReader
 $get = @(source) Request()(source
 
 if $ === Module("__main")
-	channel = $get("http://srad.jp/sradjp.rss"
+	channel = $get("https://srad.jp/sradjp.rss"
 	print("title: " + channel.title
 	print("items: " + channel.items
