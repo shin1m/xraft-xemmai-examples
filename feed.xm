@@ -2,10 +2,10 @@ system = Module("system"
 print = system.out.write_line
 libxml = Module("libxml"
 
-ElementReader = Class(libxml.TextReader) :: @
-	$__initialize = @(*arguments)
-		:$^__initialize[$](*arguments
-		$_type = null
+ElementReader = libxml.TextReader + @
+	$_type
+	#$__initialize = @(*arguments)
+	#	:$^__initialize[$](*arguments
 	$read_next = @ $_type = $read() ? $node_type() : null
 	$type = @ $_type
 	$move_to_tag = @ while $_type !== null && $_type != libxml.ReaderTypes.ELEMENT && $_type != libxml.ReaderTypes.END_ELEMENT
@@ -43,7 +43,8 @@ ElementReader = Class(libxml.TextReader) :: @
 		$check_start_element(name
 		$read_element_text(
 
-Request = Class() :: @
+Request = Object + @
+	$_reader
 	$parse_elements = @(elements, x)
 		$_reader.read_next(
 		$_reader.move_to_tag(
@@ -65,8 +66,13 @@ Request = Class() :: @
 		"pubDate": @(x) x.date = $_reader.read_element_text(
 		"pubdate": @(x) x.date = $_reader.read_element_text(
 	item_elements.share(
+	Item = Object + @
+		$title
+		$link
+		$guid
+		$date
 	$parse_item = @(x)
-		item = Object(
+		item = Item(
 		item.title = item.link = item.guid = item.date = ""
 		$parse_elements(item_elements, item
 		if item.link == ""
@@ -96,7 +102,7 @@ Request = Class() :: @
 		"updated": @(x) x.date = $_reader.read_element_text(
 	entry_elements.share(
 	$parse_entry = @(x)
-		item = Object(
+		item = Item(
 		item.title = item.link = item.guid = item.date = ""
 		$parse_elements(entry_elements, item
 		if item.link == ""
@@ -113,8 +119,17 @@ Request = Class() :: @
 		"rss": @(x) $parse_elements(rss_elements, x
 		"feed": @(x) $parse_elements(feed_elements, x
 	root_elements.share(
+	Channel = Object + @
+		$title
+		$date
+		$update_period
+		$update_frequency
+		$update_base
+		$ttl
+		$image_url
+		$items
 	$__call = @(source)
-		x = Object(
+		x = Channel(
 		x.title = ""
 		x.date = ""
 		x.update_period = ""
@@ -134,7 +149,7 @@ Request = Class() :: @
 $ElementReader = ElementReader
 $get = @(source) Request()(source
 
-if $ === Module("__main")
-	channel = $get("https://srad.jp/sradjp.rss"
+if false
+	channel = Request()("https://srad.jp/sradjp.rss"
 	print("title: " + channel.title
 	print("items: " + channel.items

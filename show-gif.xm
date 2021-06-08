@@ -3,7 +3,12 @@ xraft = Module("xraft"
 cairo = Module("cairo"
 xraftcairo = Module("xraftcairo"
 
-Frame = Class(xraft.Frame) :: @
+Frame = xraft.Frame + @
+	$images
+	$pixmap
+	$surface
+	$timer
+	$i
 	$step = @
 		image = $images[$i]
 		context = cairo.Context($surface
@@ -36,7 +41,7 @@ Frame = Class(xraft.Frame) :: @
 	$on_close = @ xraft.application().exit(
 	$on_show = @ $step(
 	$__initialize = @(path)
-		:$^__initialize[$](
+		xraft.Frame.__initialize[$](
 		$images = cairo.ImageSurface.create_all_from_gif(path
 		$pixmap = xraft.Pixmap($images.width, $images.height
 		$surface = xraftcairo.PixmapSurface($pixmap

@@ -44,7 +44,6 @@ create_icon = @(path, width, height)
 		scale = min(width / w0, height / h0
 		pixmap = xraft.Pixmap(ceil(width), ceil(height), true
 		s1 = xraftcairo.PixmapSurface(pixmap
-		s1.pixmap = pixmap
 		context = cairo.Context(s1
 		try
 			context.rectangle(0.0, 0.0, width, height
@@ -55,7 +54,7 @@ create_icon = @(path, width, height)
 			context.scale(scale, scale
 			context.set_source(s0, 0.0, 0.0
 			context.paint(
-			s1
+			'(s1, pixmap
 		finally
 			context.release(
 	finally
@@ -79,27 +78,35 @@ create_wall = @(path, width, height)
 	finally
 		s0.release(
 
-Color = Class() :: @
+Color = Object + @
+	$red
+	$green
+	$blue
 	$__initialize = @(red, green, blue)
 		$red = red
 		$green = green
 		$blue = blue
 
-Colors = Class() :: @
+Colors = Object + @
+	$face
+	$lighters
+	$darkers
 	$__initialize = @(red, green, blue)
 		$face = Color(red, green, blue
-		$lighters = [
+		$lighters = '(
 			Color((red * 3.0 + 1.0) / 4.0, (green * 3.0 + 1.0) / 4.0, (blue * 3.0 + 1.0) / 4.0
 			Color((red + 1.0) / 2.0, (green + 1.0) / 2.0, (blue + 1.0) / 2.0
 			Color((red * 3.0 + 1.0) / 4.0, (green * 3.0 + 1.0) / 4.0, (blue * 3.0 + 1.0) / 4.0
 			Color((red * 7.0 + 1.0) / 8.0, (green * 7.0 + 1.0) / 8.0, (blue * 7.0 + 1.0) / 8.0
-		$darkers = [
+		$darkers = '(
 			Color(red * 15.0 / 16.0, green * 15.0 / 16.0, blue * 15.0 / 16.0
 			Color(red * 3.0 / 4.0, green * 3.0 / 4.0, blue * 3.0 / 4.0
 			Color(red / 2.0, green / 2.0, blue / 2.0
 			Color(0.0, 0.0, 0.0
 
-Menu = Class(xraft.Shell) :: @
+Menu = xraft.Shell + @
+	$_font
+	$_current
 	$close = @
 		$_current = -1
 		application = xraft.application(
@@ -158,7 +165,7 @@ Menu = Class(xraft.Shell) :: @
 			$_current = i
 			$invalidate_current(
 	$__initialize = @
-		:$^__initialize[$](
+		xraft.Shell.__initialize[$](
 		face = cairo.ToyFontFace("Sans", cairo.FontSlant.NORMAL, cairo.FontWeight.NORMAL
 		matrix = cairo.Matrix(
 		matrix.scale(16.0, 16.0
@@ -184,8 +191,11 @@ Menu = Class(xraft.Shell) :: @
 		application.add($
 		application.pointer_grabber__($
 
-Launcher = Class(Menu) :: @
-	Item = Class() :: @
+Launcher = Menu + @
+	Item = Object + @
+		$v_icon
+		$v_texts
+		$v_action
 		$__initialize = @(icon, texts, action)
 			$v_icon = icon === null ? null : create_icon(icon.__string(), 32.0, 32.0)
 			$v_texts = texts
@@ -198,6 +208,8 @@ Launcher = Class(Menu) :: @
 					:width = extents[2]
 			36.0 + width
 
+	$_height
+	$_items
 	$item_count = @ $_items.size(
 	$item_height = @ $_height
 	$item_width = @(i) $_items[i].width($_font
@@ -212,7 +224,7 @@ Launcher = Class(Menu) :: @
 		context.fill(
 		icon = item.v_icon
 		if icon !== null
-			context.set_source(icon, x + Float(32 - icon.pixmap.width()) / 2.0, y + ($_height - Float(icon.pixmap.height())) / 2.0
+			context.set_source(icon[0], x + Float(32 - icon[1].width()) / 2.0, y + ($_height - Float(icon[1].height())) / 2.0
 			context.paint(
 		color = i == $_current ? colors.face : text
 		context.set_source_rgb(color.red, color.green, color.blue
@@ -232,7 +244,7 @@ Launcher = Class(Menu) :: @
 					$close(
 					action(
 	$__initialize = @
-		:$^__initialize[$](
+		Menu.__initialize[$](
 		$_height = max(36.0, $_font.font_extents()[2] * 2.0
 		base = io.Path(system.script) / "../window-manager.data"
 		$_items = [
@@ -244,7 +256,9 @@ Launcher = Class(Menu) :: @
 			Item(null, [], null
 			Item(null, ["Exit"], xraftwm.root().exit
 
-List = Class(Menu) :: @
+List = Menu + @
+	$_height
+	$_items
 	$item_count = @ $_items.size(
 	$item_height = @ $_height
 	$item_text = @(i)
@@ -279,14 +293,20 @@ List = Class(Menu) :: @
 				item.shaded__(false
 				item.show(
 	$__initialize = @
-		:$^__initialize[$](
+		Menu.__initialize[$](
 		$_height = max(36.0, $_font.font_extents()[2] * 2.0
 	$popup = @(point)
 		$_items = xraftwm.root().list_clients(
-		:$^popup[$](point
+		Menu.popup[$](point
 
-Client = Class(xraftwm.Client) :: @
-	Button = Class() :: @
+Client = xraftwm.Client + @
+	Button = Object + @
+		$v_x
+		$v_y
+		$v_width
+		$v_height
+		$v_polygons
+		$v_action
 		$__initialize = @(x, y, width, height, polygons, action)
 			$v_x = x
 			$v_y = y
@@ -323,7 +343,10 @@ Client = Class(xraftwm.Client) :: @
 				context.move_to(x + w * polygon[0][0], y + h * polygon[0][1]
 				polygon.each(@(p) context.line_to(x + w * p[0], y + h * p[1]
 				context.fill(
-	Part = Class() :: @
+	Part = Object + @
+		$v_horizontal
+		$v_vertical
+		$v_cursor
 		$__initialize = @(horizontal, vertical, cursor)
 			$v_horizontal = horizontal
 			$v_vertical = vertical
@@ -351,6 +374,10 @@ Client = Class(xraftwm.Client) :: @
 	v_part_bottom = Part(xraftwm.Side.NONE, xraftwm.Side.FAR, xraft.Application.cursor_bottom
 	v_part_right_bottom = Part(xraftwm.Side.FAR, xraftwm.Side.FAR, xraft.Application.cursor_bottom_right
 
+	$_buttons
+	$_pointed
+	$_pressed
+	$_normal
 	$pointed = @(x, y)
 		button = first($_buttons, @(button) button.contains(x, y
 		button !== null && return button
@@ -407,7 +434,7 @@ Client = Class(xraftwm.Client) :: @
 			point = $from_screen(xraft.application().pointer(
 			$on_pointer_move(xraft.Modifier.NONE, point.x(), point.y()
 		$invalidate_all(
-	$on_show = $buttons
+	$on_show = @ $buttons(
 	$on_paint = @(g) xraftcairo.draw_on_graphics(g, (@(context)
 		root = $parent(
 		if $ === root.active()
@@ -465,23 +492,36 @@ Client = Class(xraftwm.Client) :: @
 		$_pointed = pointed
 		$_pointed.invalidate($
 		$_pressed === null && $cursor__($_pointed.cursor(
-	$on_activate = $invalidate_all
-	$on_deactivate = $invalidate_all
-	$on_name = $invalidate_all
+	$on_activate = @ $invalidate_all(
+	$on_deactivate = @ $invalidate_all(
+	$on_name = @ $invalidate_all(
 	$on_protocols = @
 		$buttons(
 		$invalidate_all(
 	$__initialize = @
-		:$^__initialize[$](
+		xraftwm.Client.__initialize[$](
 		$_buttons = [
 		$_pointed = v_part_title
-		$_pressed = null
-		$_normal = null
 		$borders__([4, 20, 4, 4
 
-Root = Class(xraftwm.Root) :: @
+Root = xraftwm.Root + @
 	days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
 	pad0 = @(i) i < 10 ? "0" + i : i.__string()
+	$v_active
+	$v_inactive
+	$v_text_active
+	$v_text_inactive
+	$v_pointed
+	$v_pressed
+	$_font
+	$_launcher
+	$_list
+	$_exiting
+	$_resizing
+	$_wall0
+	$_wall1
+	$_timer
+	$_power
 	$invalidate_bar = @
 		screen = xraft.application().screen(
 		extents = $_font.text_extents("00/00"
@@ -559,7 +599,7 @@ Root = Class(xraftwm.Root) :: @
 		client.move(horizontal, x, vertical, y
 	$on_client = Client
 	$__initialize = @
-		:$^__initialize[$](
+		xraftwm.Root.__initialize[$](
 		$v_active = Colors(0.0, 3.0 / 16.0, 10.0 / 16.0
 		$v_inactive = Colors(2.0 / 16.0, 4.0 / 16.0, 9.0 / 16.0
 		$v_text_active = Color(14.0 / 16.0, 14.0 / 16.0, 14.0 / 16.0
@@ -574,7 +614,6 @@ Root = Class(xraftwm.Root) :: @
 		$_launcher = Launcher(
 		$_list = List(
 		$_exiting = false
-		$_resizing = null
 		base = io.Path(system.script) / ".."
 		screen = xraft.application().screen(
 		width = screen.width(
@@ -594,7 +633,7 @@ Root = Class(xraftwm.Root) :: @
 		$invalidate_clock(
 		$_power = power.Indicator($invalidate_bar
 	$remove = @(i)
-		:$^remove[$](i
+		xraftwm.Root.remove[$](i
 		$_exiting && $continue_exit(
 	$continue_exit = @
 		try

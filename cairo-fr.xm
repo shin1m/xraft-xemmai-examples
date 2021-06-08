@@ -58,51 +58,64 @@ create_thumbnail = @(image, width, height)
 	image === null && return
 	image.rewind(
 	try
-		s0 = cairo.ImageSurface.create_from_stream(image.read
+		s = cairo.ImageSurface.create_from_stream(image.read
 	catch Throwable e
 		print(e
 		e.dump(
 		return
 	try
-		w0 = Float(s0.get_width(
-		h0 = Float(s0.get_height(
-		scale = min(width / w0, height / h0
+		w = Float(s.get_width(
+		h = Float(s.get_height(
+		scale = min(width / w, height / h
 		pixmap = xraft.Pixmap(ceil(width), ceil(height), true
-		s1 = xraftcairo.PixmapSurface(pixmap
-		s1.pixmap = pixmap
-		context = cairo.Context(s1
+		surface = xraftcairo.PixmapSurface(pixmap
+		context = cairo.Context(surface
 		try
 			context.rectangle(0.0, 0.0, width, height
 			context.set_operator(cairo.Operator.CLEAR
 			context.fill(
 			context.set_operator(cairo.Operator.OVER
-			context.translate((width - w0 * scale) * 0.5, (height - h0 * scale) * 0.5
+			context.translate((width - w * scale) * 0.5, (height - h * scale) * 0.5
 			context.scale(scale, scale
-			context.set_source(s0, 0.0, 0.0
+			context.set_source(s, 0.0, 0.0
 			context.paint(
-			s1
+			'(surface, pixmap
 		finally
 			context.release(
 	finally
-		s0.release(
+		s.release(
 
-Channel = Class() :: @
+Channel = Object + @
+	$_url
+	$_default_image
+	$_date
+	$_retrieved
+	$_next
+	$_image
+	$_thumbnail
 	$__initialize = @(url, default_image = null)
 		$_url = url
 		$_default_image = default_image
+	$__less = @(x) $_url < x._url
+	$initialize = @(width, height)
 		$_date = 0.0
 		$_retrieved = 0.0
 		$_next = 0.0
-		$_image = null
-		$share(
-	$__less = @(x) $_url < x._url
+		$create_thumbnail(width, height
 	$create_thumbnail = @(width, height)
-		if $.?_thumbnail && $_thumbnail !== null
-			$_thumbnail.pixmap.release(
-			$_thumbnail.release(
+		if $_thumbnail !== null
+			$_thumbnail[0].release(
+			$_thumbnail[1].release(
 		$_thumbnail = create_thumbnail($_image, width, height
 
-Worker = Class() :: @
+Worker = Object + @
+	$_merge
+	$_save
+	$_channels
+	$_done
+	$_mutex
+	$_condition
+	$_thread
 	$update = @(channel)
 		print("updating: " + channel._url + " ..."
 		c = feed.get(channel._url
@@ -135,7 +148,6 @@ Worker = Class() :: @
 			print("retrieving: " + url + " ..."
 			try
 				channel._image = retrieve(url
-				channel._image.share(
 				print("retrieving done."
 			catch Throwable e
 				print(e
@@ -202,7 +214,6 @@ Worker = Class() :: @
 		$_done = false
 		$_mutex = threading.Mutex(
 		$_condition = threading.Condition(
-		$share(
 	$start = @ $_thread = Thread($run
 	$terminate = @
 		$_mutex.acquire(
@@ -215,7 +226,12 @@ Worker = Class() :: @
 		$_thread.join(
 		print("done."
 
-Item = Class() :: @
+Item = Object + @
+	$_channel
+	$_key
+	$_time
+	$_index
+	$_retrieved
 	$__initialize = @(channel, key, time, index)
 		$_channel = channel
 		$_key = key
@@ -229,15 +245,33 @@ Item = Class() :: @
 		today = time.decompose(time.now() + o
 		t[0] == today[0] && t[1] == today[1] && t[2] == today[2] ? pad0(t[3]) + ":" + pad0(t[4]) + ":" + pad0(Integer(t[5])) : pad0(t[0] % 100) + "/" + pad0(t[1]) + "/" + pad0(t[2])
 
-Color = Class() :: @
+Color = Object + @
+	$red
+	$green
+	$blue
 	$__initialize = @(red, green, blue)
 		$red = red
 		$green = green
 		$blue = blue
 
-List = Class(xraft.Frame) :: @
+List = xraft.Frame + @
+	$_item_height
+	$_image_width
+	$_inactive
+	$_active
+	$_items
+	$_sort
+	$_position
+	$_current
+	$_delta
+	$_timer
+	$_worker
+	$_y
+	$_pressed
+	$_last_tick
+	$_last_pointer
+	$_moved
 	$update_caption = @ $caption__("Feed Reader " + $_worker._channels.size() + " Channels " + $_items.size() + " Items"
-	$create_thumbnail = @(channel) channel.create_thumbnail($_image_width, $_item_height
 	$sort0 = @
 		$_items.sort(@(x, y)
 			try
@@ -263,9 +297,8 @@ List = Class(xraft.Frame) :: @
 		extent = $geometry(
 		$invalidate(0, 0, extent.width(), extent.height()
 	$merge = @(channel, news)
-		channel._image.own(
 		news.own(
-		$create_thumbnail(channel
+		channel.create_thumbnail($_image_width, $_item_height
 		items = [
 		$_items.each(@(i)
 			if i._channel === channel
@@ -278,7 +311,7 @@ List = Class(xraft.Frame) :: @
 		$_items = items
 		$sort(
 		$update_caption(
-	$load = @(url2channel, items)
+	load = @(url2channel, items)
 		reader = feed.ElementReader(system.script + ".session"
 		try
 			reader.read_next(
@@ -351,7 +384,7 @@ List = Class(xraft.Frame) :: @
 		y1 = ceil(y + $_item_height
 		$invalidate(0, y0, $geometry().width(), y1 - y0
 	$update_current = @
-		if $.?_pressed || $_delta == 0
+		if $_pressed !== null || $_delta == 0
 			i = floor(Float($_y + $_position) / $_item_height
 			if i >= $_items.size()
 				i = -1
@@ -407,7 +440,7 @@ List = Class(xraft.Frame) :: @
 				context.fill(
 				thumbnail = item._channel._thumbnail
 				if thumbnail !== null
-					context.set_source(thumbnail, 0.0, y
+					context.set_source(thumbnail[0], 0.0, y
 					context.paint(
 				context.set_source_rgb(colors[1].red, colors[1].green, colors[1].blue
 				b = y - extents[1] + 1.0
@@ -455,8 +488,8 @@ List = Class(xraft.Frame) :: @
 	$delta = @(dt, y) Integer(Float(y - $_last_pointer) * 20.0 / Float(dt)
 	$on_button_release = @(modifier, button, x, y)
 		$_y = y
-		if button == xraft.Button.BUTTON3 && $.?_pressed
-			$.~_pressed
+		if button == xraft.Button.BUTTON3 && $_pressed !== null
+			$_pressed = null
 			dt = time.tick() - $_last_tick
 			if !$_moved
 				$_delta = $delta(max(dt, 5), y
@@ -474,7 +507,7 @@ List = Class(xraft.Frame) :: @
 			$_current = -1
 	$on_pointer_move = @(modifier, x, y)
 		$_y = y
-		if $.?_pressed
+		if $_pressed !== null
 			$position__($_pressed - y
 			tick = time.tick(
 			dt = tick - $_last_tick
@@ -489,7 +522,7 @@ List = Class(xraft.Frame) :: @
 		$_worker.terminate(
 		xraft.application().exit(
 	$__initialize = @(channels)
-		:$^__initialize[$](
+		xraft.Frame.__initialize[$](
 		$_item_height = 16.0
 		$_image_width = 48.0
 		$_inactive = [Color(1.0, 1.0, 1.0), Color(0.0, 0.0, 0.0)
@@ -497,7 +530,7 @@ List = Class(xraft.Frame) :: @
 		olds = {
 		items = [
 		try
-			$load(olds, items
+			load(olds, items
 		catch Throwable e
 			print(e
 			e.dump(
@@ -509,15 +542,15 @@ List = Class(xraft.Frame) :: @
 				news.push(c0
 			catch Throwable e
 				news.push(c
-		news.each($create_thumbnail
+		news.each((@(channel) channel.initialize($_image_width, $_item_height))[$]
 		$_items = [
-		items.each(@(i) i._channel.?_thumbnail && :$_items.push(i
+		items.each(@(i) i._channel._next !== null && :$_items.push(i
 		$_sort = sort_keys[xraft.Key.R]
 		$_position = 0
 		$_current = -1
 		$_delta = 0
 		$_timer = xraft.Timer((@
-			if !$.?_pressed
+			if $_pressed === null
 				position = $_position
 				$position__($_position - $_delta
 				if $_position == position
@@ -535,17 +568,16 @@ List = Class(xraft.Frame) :: @
 
 xraft.main(system.arguments, @(application) cairo.main(@
 	list = List([
-		Channel("https://www.linux.com/feeds/rss"
+		Channel("https://www.linux.com/feed/"
 		Channel("https://srad.jp/sradjp.rss"
 		Channel("https://mag.osdn.jp/rss"
 		Channel("http://japan.cnet.com/rss/index.rdf", "http://japan.cnet.com/media/c/2010/image/header/cnet_logo.gif"
 		Channel("http://www3.asahi.com/rss/index.rdf", "http://www.asahi.com/images08/common/logo.gif"
-		Channel("http://www.nikkeibp.co.jp/rss/index.rdf"
-		Channel("http://rss.itmedia.co.jp/rss/2.0/enterprise.xml"
-		Channel("http://rss.itmedia.co.jp/rss/2.0/plusd.xml"
-		Channel("http://www.atmarkit.co.jp/rss/rss.xml"
+		Channel("https://tech.nikkeibp.co.jp/rss/index.rdf", "https://pbs.twimg.com/profile_images/1209714081898233861/bq-8wK08_400x400.jpg"
+		Channel("https://rss.itmedia.co.jp/rss/2.0/topstory.xml", "https://corp.itmedia.co.jp/common/images/head/logo.gif"
+		Channel("https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml", "https://corp.itmedia.co.jp/common/images/head/logo.gif"
 		Channel("http://codezine.jp/rss/new/20/index.xml", "http://codezine.jp/static/common/images/logo.gif"
-		Channel("http://rss.rssad.jp/rss/headline/headline.rdf", "http://www.watch.impress.co.jp/header/0804/img/headline_logo.gif"
+		Channel("https://www.watch.impress.co.jp/data/rss/1.0/ipw/feed.rdf", "http://www.watch.impress.co.jp/header/0804/img/headline_logo.gif"
 		Channel("http://feed.rssad.jp/rss/gigazine/rss_atom"
 		Channel("http://feeds.gizmodo.jp/rss/gizmodo/index.xml"
 		Channel("http://japanese.engadget.com/rss.xml", "http://a1.twimg.com/profile_images/468313888/very_sm_e_normal.png"

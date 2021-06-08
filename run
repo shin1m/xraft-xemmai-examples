@@ -2,5 +2,5 @@
 
 XRAFT_ROOT=~/github
 
-#XEMMAI_MODULE_PATH=$XRAFT_ROOT/xraft/xemmai/.libs $XRAFT_ROOT/debug/bin/xemmai --verbose $*
-$XRAFT_ROOT/debug/bin/xemmai --verbose $*
+LD_LIBRARY_PATH=$XRAFT_ROOT/debug/lib $XRAFT_ROOT/debug/bin/xemmai --verbose $*
+#LD_LIBRARY_PATH=$XRAFT_ROOT/release/lib $XRAFT_ROOT/release/bin/xemmai --verbose $*

@@ -6,7 +6,14 @@ xraftdbus = Module("xraftdbus"
 cairo = Module("cairo"
 upower = Module("upower"
 
-$Indicator = Class() :: @
+$Indicator = Object + @
+	$invalidate
+	$up
+	$line
+	$battery
+	$online
+	$percentage
+	$state
 	$draw = @(context, width, height)
 		w = width - 4.0
 		h = height - 8.0
@@ -66,13 +73,10 @@ $Indicator = Class() :: @
 		$battery !== null && $battery.add_properties_changed($refresh
 		$refresh(null
 	$__initialize = @(invalidate)
-		:$^__initialize[$](
 		$invalidate = invalidate
 		connection = dbus.Connection(dbus.BusType.SYSTEM
 		xraftdbus.watch(connection
 		$up = upower.UPower(connection
-		$line = null
-		$battery = null
 		$up.add_match("DeviceAdded", $reload
 		$up.add_match("DeviceRemoved", $reload
 		$reload(null

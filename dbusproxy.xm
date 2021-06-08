@@ -1,6 +1,10 @@
 dbus = Module("dbus"
 
-$Proxy = Class() :: @
+$Proxy = Object + @
+	$connection
+	$destination
+	$path
+	$interface
 	$__initialize = @(connection, destination, path, interface)
 		$connection = connection
 		$destination = destination
@@ -31,7 +35,10 @@ $Proxy = Class() :: @
 	$get = @(name) $call($properties("Get", name
 	$set = @(name, value) $call($properties("Set", name).append(value
 
-$Service = Class() :: @
+$Service = Object + @
+	$connection
+	$path
+	$interface
 	$__initialize = @(connection, path, interface)
 		$connection = connection
 		$path = path

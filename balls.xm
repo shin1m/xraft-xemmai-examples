@@ -4,7 +4,14 @@ fabs = math.fabs
 sqrt = math.sqrt
 xraft = Module("xraft"
 
-Ball = Class() :: @
+Ball = Object + @
+	$image
+	$mask
+	$r
+	$x
+	$y
+	$vx
+	$vy
 	$__initialize = @(image, mask, x, y, vx, vy)
 		$image = image
 		$mask = mask
@@ -45,7 +52,19 @@ Ball = Class() :: @
 			ball.vx = vv2 * dx - w2 * dy
 			ball.vy = w2 * dx + vv2 * dy
 
-Balls = Class(xraft.Frame) :: @
+Balls = xraft.Frame + @
+	$foreground
+	$background
+	$wall
+	$ball
+	$mask
+	$balls
+	$energy
+	$_cursor
+	$timer0
+	$timer1
+	$double_bufferred
+	$pixmap
 	range = @(i, j, callable) for ; i < j; i = i + 1
 		callable(i
 	$invalidate_all = @
@@ -67,7 +86,7 @@ Balls = Class(xraft.Frame) :: @
 		$balls.shift(
 		$invalidate_all(
 	$append = @
-		cursor = $cursor
+		cursor = $_cursor
 		cursor === null && return
 		$balls.push(Ball($ball, $mask, cursor.x(), cursor.y(), 0.0, 0.0
 		$invalidate_all(
@@ -110,7 +129,7 @@ Balls = Class(xraft.Frame) :: @
 		g.draw(0, h, "Number of Balls: " + $balls.size()
 		g.draw(0, h * 2, "Kinetic and Potential Energy: " + $energy
 		g.draw(0, h * 3, "Double Bufferred: " + $double_bufferred
-		cursor = $cursor
+		cursor = $_cursor
 		cursor === null && return
 		ball = $ball
 		r = ball.width() / 2
@@ -134,17 +153,17 @@ Balls = Class(xraft.Frame) :: @
 			$balls = [
 			$invalidate_all(
 	$on_pointer_enter = @(modifier, x, y, mode, detail)
-		$cursor = xraft.Point(x, y
+		$_cursor = xraft.Point(x, y
 		$invalidate_all(
 	$on_pointer_leave = @(modifier, x, y, mode, detail)
-		$cursor = null
+		$_cursor = null
 		$invalidate_all(
 	$on_pointer_move = @(modifier, x, y)
-		$cursor = xraft.Point(x, y
+		$_cursor = xraft.Point(x, y
 		$invalidate_all(
 	$on_close = @ xraft.application().exit(
 	$__initialize = @(foreground, background, wall, ball, mask)
-		:$^__initialize[$](
+		xraft.Frame.__initialize[$](
 		$foreground = foreground
 		$background = background
 		$wall = wall
@@ -152,7 +171,6 @@ Balls = Class(xraft.Frame) :: @
 		$mask = mask
 		$balls = [
 		$energy = 0.0
-		$cursor = null
 		$timer0 = xraft.Timer($step
 		$timer1 = xraft.Timer($remove
 		$double_bufferred = true

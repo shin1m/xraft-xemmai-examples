@@ -24,7 +24,10 @@ draw_with_cairo = @(callable) @(g)
 
 unit = 16.0
 
-Color = Class() :: @
+Color = Object + @
+	$red
+	$green
+	$blue
 	$__initialize = @(red, green, blue)
 		$red = red
 		$green = green
@@ -50,7 +53,11 @@ draw_block = @(context, x, y, color)
 	context.set_source_rgb(color.red * 0.5, color.green * 0.5, color.blue * 0.5
 	context.stroke(
 
-Tetrimino = Class() :: @
+Tetrimino = Object + @
+	$_blocks
+	$_color
+	$_left_offsets
+	$_right_offsets
 	$__initialize = @(blocks, color, left_offsets, right_offsets)
 		$_blocks = blocks
 		$_color = color
@@ -239,7 +246,52 @@ tetriminos = '(
 		'('(1, 0), '(1, -1), '(0, 2), '(1, 2)
 	)
 
-Stage = Class(xraft.Widget) :: @
+Stage = xraft.Widget + @
+	$_gray
+	$_pixmap
+	$_surface
+	$_timer
+	$_context
+	$_sound_bgm
+	$_sound_over
+	$_sound_impact
+	$_sound_clear
+	$_sound_hold
+	$on_clear
+	$_rows
+	$_filleds
+	$_nexts
+	$_tetrimino
+	$_direction
+	$_x
+	$_y
+	$_ghost
+	$_already_held
+	$_held
+	$_hard_drop
+	$_hard_drop_direction
+	$_hard_drop_x
+	$_hard_drop_y0
+	$_hard_drop_y1
+	$_speed_to_next
+	$_speed_to_drop
+	$_speed_to_fix
+	$_speed_to_clear
+	$_speed_to_hold
+	$_speed_to_fade_hard_drop
+	$_ticks_to_next
+	$_ticks_to_wait
+	$_ticks_to_hold
+	$_ticks_to_fade_hard_drop
+	$_tick
+	$_slide_pressed
+	$_pulse_slide
+	$_ticks_to_repeat_slide
+	$_drop_pressed
+	$_pulse_drop
+	$_ticks_to_repeat_drop
+	$lines
+	$score
 	$width = ceil(21 * unit
 	$height = ceil(22 * unit
 
@@ -303,7 +355,7 @@ Stage = Class(xraft.Widget) :: @
 		source.set_buffer($_context.get_device().create_buffer_from_file(path
 		source
 	$__initialize = @(context)
-		:$^__initialize[$](
+		xraft.Widget.__initialize[$](
 		$_gray = Color(0.5, 0.5, 0.5
 		$_pixmap = xraft.Pixmap($width, $height
 		$_surface = xraftcairo.PixmapSurface($_pixmap
@@ -315,7 +367,6 @@ Stage = Class(xraft.Widget) :: @
 		$_sound_impact = $load_sound("impact.wav"
 		$_sound_clear = $load_sound("clear.wav"
 		$_sound_hold = $load_sound("hold.wav"
-		$on_clear = null
 		$reset(
 	next7 = @
 		ns = [0, 1, 2, 3, 4, 5, 6
@@ -554,7 +605,8 @@ Stage = Class(xraft.Widget) :: @
 		$_ticks_to_hold = $_speed_to_hold
 		$_sound_hold.play(
 
-Score = Class(xraft.Widget) :: @
+Score = xraft.Widget + @
+	$_stage
 	$on_move = @ $invalidate_all(
 	$draw_right_aligned_text = @(context, x, y, text)
 		extents = context.text_extents(text
@@ -597,13 +649,17 @@ Score = Class(xraft.Widget) :: @
 			"Right: Move Right"
 			"Down: Soft Drop"
 	$__initialize = @(stage)
-		:$^__initialize[$](
+		xraft.Widget.__initialize[$](
 		$_stage = stage
 	$invalidate_all = @
 		extent = $geometry(
 		$invalidate(0, 0, extent.width(), extent.height()
 
-Frame = Class(xraft.Frame) :: @
+Frame = xraft.Frame + @
+	$_stage
+	$_score
+	$_key_press
+	$_key_release
 	$on_move = @
 		extent = $geometry(
 		width = $_stage.width
@@ -628,7 +684,7 @@ Frame = Class(xraft.Frame) :: @
 		catch Throwable e
 	$on_close = @ xraft.application().exit(
 	$__initialize = @(context)
-		:$^__initialize[$](
+		xraft.Frame.__initialize[$](
 		$_stage = Stage(context
 		$add($_stage
 		$_score = Score($_stage

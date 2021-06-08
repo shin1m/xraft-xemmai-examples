@@ -11,7 +11,12 @@ format_time = @(t)
 	o = time.offset(
 	time.format_rfc2822(time.decompose(t + Float(o)), o
 
-Worker = Class() :: @
+Worker = Object + @
+	$_message__
+	$_done
+	$_mutex
+	$_condition
+	$_thread
 	$run = @
 		$_mutex.acquire(
 		try
@@ -47,7 +52,6 @@ Worker = Class() :: @
 		$_done = false
 		$_mutex = threading.Mutex(
 		$_condition = threading.Condition(
-		$share(
 	$start = @ $_thread = Thread($run
 	$terminate = @
 		$_mutex.acquire(
@@ -60,7 +64,9 @@ Worker = Class() :: @
 		$_thread.join(
 		print("done."
 
-Frame = Class(xraft.Frame) :: @
+Frame = xraft.Frame + @
+	$_message
+	$_worker
 	$on_paint = @(g) xraftcairo.draw_on_graphics(g, (@(context)
 		extent = $geometry(
 		width = Float(extent.width(
@@ -80,7 +86,7 @@ Frame = Class(xraft.Frame) :: @
 		$_worker.terminate(
 		xraft.application().exit(
 	$__initialize = @
-		:$^__initialize[$](
+		xraft.Frame.__initialize[$](
 		$caption__("Worker Test"
 		$message__("Starting..."
 		$_worker = Worker($message__

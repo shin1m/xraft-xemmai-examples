@@ -1,14 +1,19 @@
 system = Module("system"
 xraft = Module("xraft"
 
-Hello = Class(xraft.Frame) :: @
+Hello = xraft.Frame + @
+	$foreground
+	$background
+	$text
+	$_count
+	$thread
 	$on_paint = @(g)
 		extent = $geometry(
 		g.color($background.pixel(
 		g.fill(0, 0, extent.width(), extent.height()
 		g.color($foreground.pixel(
 		font = xraft.application().font(
-		text = $text + ": " + $count
+		text = $text + ": " + $_count
 		w = font.width(text
 		h = font.height(
 		g.draw((extent.width() - w) / 2, (extent.height() - h) / 2 + font.ascent(), text
@@ -19,7 +24,7 @@ Hello = Class(xraft.Frame) :: @
 		else if key == xraft.Key.T
 			$thread !== null && $thread.join(
 			$thread = Thread(@
-				:$count = :$count + 1
+				:$_count = :$_count + 1
 				extent = :$geometry(
 				:$invalidate(0, 0, extent.width(), extent.height()
 		else if key == xraft.Key.P
@@ -27,25 +32,23 @@ Hello = Class(xraft.Frame) :: @
 			application = xraft.application(
 			$thread = Thread(@
 				application.post(@
-					::$count = ::$count + 1
+					::$_count = ::$_count + 1
 					extent = ::$geometry(
 					::$invalidate(0, 0, extent.width(), extent.height()
 	$on_button_press = @(modifier, button, x, y) if button == xraft.Button.BUTTON3
 		$on_close(
 	$on_pointer_move = @(modifier, x, y)
-		$cursor = xraft.Point(x, y
 		extent = $geometry(
 		$invalidate(0, 0, extent.width(), extent.height()
 	$on_close = @
 		$thread !== null && $thread.join(
 		xraft.application().exit(
 	$__initialize = @(text)
-		:$^__initialize[$](
+		xraft.Frame.__initialize[$](
 		$foreground = xraft.Color("blue"
 		$background = xraft.Color("white"
 		$text = text
-		$count = 0
-		$thread = null
+		$_count = 0
 
 xraft.main(system.arguments, @(application)
 	frame = Hello("Hello, World!!"

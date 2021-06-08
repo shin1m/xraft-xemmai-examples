@@ -375,7 +375,8 @@ samples = [
 
 draw_with_cairo = @(callable) @(g) xraftcairo.draw_on_graphics(g, callable[$]
 
-Frame = Class(xraft.Frame) :: @
+Frame = xraft.Frame + @
+	$i
 	$on_move = @
 		extent = $geometry(
 		$invalidate(0, 0, extent.width(), extent.height()
@@ -414,7 +415,7 @@ Frame = Class(xraft.Frame) :: @
 			$invalidate(0, 0, extent.width(), extent.height()
 	$on_close = @ xraft.application().exit(
 	$__initialize = @
-		:$^__initialize[$](
+		xraft.Frame.__initialize[$](
 		$i = 0
 
 xraft.main(system.arguments, @(application) cairo.main(@

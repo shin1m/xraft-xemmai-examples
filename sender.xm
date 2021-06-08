@@ -7,11 +7,12 @@ cairo = Module("cairo"
 xraftcairo = Module("xraftcairo"
 dbusproxy = Module("dbusproxy"
 
-Sender = Class(dbusproxy.Service) :: @
-	$__initialize = @(connection) :$^__initialize[$](connection, "/foo/Sender", "foo.Sender"
+Sender = dbusproxy.Service + @
+	$__initialize = @(connection) dbusproxy.Service.__initialize[$](connection, "/foo/Sender", "foo.Sender"
 	$emit_message = @(message) $send($signal("Message").append(message
 
-Frame = Class(xraft.Frame) :: @
+Frame = xraft.Frame + @
+	$sender
 	$on_paint = @(g) xraftcairo.draw_on_graphics(g, (@(context)
 		extent = $geometry(
 		width = Float(extent.width(
@@ -29,7 +30,7 @@ Frame = Class(xraft.Frame) :: @
 	$on_key_press = @(modifier, key, ascii) $sender.emit_message(String.from_code(ascii
 	$on_close = @ xraft.application().exit(
 	$__initialize = @(connection)
-		:$^__initialize[$](
+		xraft.Frame.__initialize[$](
 		$caption__("Sender"
 		$sender = Sender(connection
 

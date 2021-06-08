@@ -2,7 +2,10 @@ system = Module("system"
 print = system.error.write_line
 xraft = Module("xraft"
 
-Hello = Class(xraft.Frame) :: @
+Hello = xraft.Frame + @
+	$foreground
+	$background
+	$text
 	$on_paint = @(g)
 		extent = $geometry(
 		g.color($background.pixel(
@@ -19,12 +22,11 @@ Hello = Class(xraft.Frame) :: @
 		print(button
 		button == xraft.Button.BUTTON3 && $on_close(
 	$on_pointer_move = @(modifier, x, y)
-		$cursor = xraft.Point(x, y
 		extent = $geometry(
 		$invalidate(0, 0, extent.width(), extent.height()
 	$on_close = @ xraft.application().exit(
 	$__initialize = @(text)
-		:$^__initialize[$](
+		xraft.Frame.__initialize[$](
 		$foreground = xraft.Color("blue"
 		$background = xraft.Color("white"
 		$text = text

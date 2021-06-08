@@ -9,11 +9,6 @@ gl = Module("gl"
 range = @(i, j, callable) for ; i < j; i = i + 1
 	callable(i
 
-Matrix3 = matrix.Matrix3
-Matrix4 = matrix.Matrix4
-Vector3 = matrix.Vector3
-Vector4 = matrix.Vector4
-
 Matrix__bytes = @
 	N = $N
 	bytes = Bytes(N * N * gl.Float32Array.BYTES_PER_ELEMENT
@@ -21,10 +16,49 @@ Matrix__bytes = @
 	array = gl.Float32Array(bytes
 	range(0, N, @(i) range(0, N, @(j) array[i * N + j] = v[i][j]
 	bytes
-Matrix3.bytes = Matrix__bytes
-Matrix4.bytes = Matrix__bytes
+Matrix3 = matrix.Matrix3 + @
+	$bytes = Matrix__bytes
+Matrix4 = matrix.Matrix4 + @
+	$bytes = Matrix__bytes
+Vector3 = matrix.Vector3
+Vector4 = matrix.Vector4
 
-Gear = Class() :: @
+Gear = Object + @
+	$_color
+	$_texture
+	$_texture_matrix
+	$_front_vertices
+	$_front_vertices_count
+	$_front_teeth_vertices
+	$_front_teeth_vertices_count
+	$_back_vertices
+	$_back_vertices_count
+	$_back_teeth_vertices
+	$_back_teeth_vertices_count
+	$_outward_vertices
+	$_outward_vertices_count
+	$_outward_normals
+	$_cylinder_vertices
+	$_cylinder_vertices_count
+	$_cylinder_normals
+	$_face_program
+	$_face_attribute_vertex
+	$_face_uniform_color
+	$_face_uniform_vertex_matrix
+	$_face_uniform_texture_matrix
+	$_face_uniform_texture
+	$_outward_program
+	$_outward_attribute_vertex
+	$_outward_attribute_normal
+	$_outward_uniform_color
+	$_outward_uniform_normal_matrix
+	$_outward_uniform_vertex_matrix
+	$_cylinder_program
+	$_cylinder_attribute_vertex
+	$_cylinder_attribute_normal
+	$_cylinder_uniform_color
+	$_cylinder_uniform_normal_matrix
+	$_cylinder_uniform_vertex_matrix
 	# flat shading + uniform color + uniform mvp
 	FACE_VSHADER = "
 attribute vec3 vertex;
@@ -125,7 +159,10 @@ void main()
 }
 	"
 
-	Vertices = Class() :: @
+	Vertices = Object + @
+		$_normal
+		$_vertices
+		$_normals
 		$__initialize = @
 			$_normal = '(0.0, 0.0, 1.0
 			$_vertices = [
@@ -144,7 +181,7 @@ void main()
 			range(0, floats.size(), @(i) array[i] = floats[i]
 			gl.bind_buffer(gl.ARRAY_BUFFER, buffer
 			gl.buffer_data(gl.ARRAY_BUFFER, bytes, gl.STATIC_DRAW
-			buffer.count = floats.size() / 3
+			floats.size() / 3
 		$vertices = @(buffer) transfer($_vertices, buffer
 		$normals = @(buffer) transfer($_normals, buffer
 	load_rgba = @(path)
@@ -187,7 +224,7 @@ void main()
 		r1 = outer - depth / 2.0
 		r2 = outer + depth / 2.0
 		dz = 0.5 * width
-		$_texture_matrix = matrix.Matrix4(
+		$_texture_matrix = Matrix4(
 		$_texture_matrix.translate(0.5, 0.5, 0.0
 		$_texture_matrix.scale(0.5 / r2, -0.5 / r2, 1.0
 		# draw front face
@@ -201,7 +238,7 @@ void main()
 			vertices.vertex3f(r1 * math.cos(as[3]), r1 * math.sin(as[3]), dz
 		vertices.vertex3f(r0 * math.cos(0.0), r0 * math.sin(0.0), dz
 		vertices.vertex3f(r1 * math.cos(0.0), r1 * math.sin(0.0), dz
-		vertices.vertices($_front_vertices
+		$_front_vertices_count = vertices.vertices($_front_vertices
 		# draw front sides of teeth
 		# GL_TRIANGLES
 		vertices = Vertices(
@@ -213,7 +250,7 @@ void main()
 			vertices.vertex3f(r1 * math.cos(as[0]), r1 * math.sin(as[0]), dz   # 0
 			vertices.vertex3f(r2 * math.cos(as[2]), r2 * math.sin(as[2]), dz   # 2
 			vertices.vertex3f(r1 * math.cos(as[3]), r1 * math.sin(as[3]), dz   # 3
-		vertices.vertices($_front_teeth_vertices
+		$_front_teeth_vertices_count = vertices.vertices($_front_teeth_vertices
 		#draw back face
 		#GL_TRIANGLE_STRIP
 		vertices = Vertices(
@@ -225,7 +262,7 @@ void main()
 			vertices.vertex3f(r0 * math.cos(as[0]), r0 * math.sin(as[0]), -dz
 		vertices.vertex3f(r1 * math.cos(0.0), r1 * math.sin(0.0), -dz
 		vertices.vertex3f(r0 * math.cos(0.0), r0 * math.sin(0.0), -dz
-		vertices.vertices($_back_vertices
+		$_back_vertices_count = vertices.vertices($_back_vertices
 		# draw back sides of teeth
 		# GL_TRIANGLES
 		vertices = Vertices(
@@ -237,7 +274,7 @@ void main()
 			vertices.vertex3f(r1 * math.cos(as[3]), r1 * math.sin(as[3]), -dz   # 0
 			vertices.vertex3f(r2 * math.cos(as[1]), r2 * math.sin(as[1]), -dz   # 2
 			vertices.vertex3f(r1 * math.cos(as[0]), r1 * math.sin(as[0]), -dz   # 3
-		vertices.vertices($_back_teeth_vertices
+		$_back_teeth_vertices_count = vertices.vertices($_back_teeth_vertices
 		# draw outward faces of teeth
 		# GL_TRIANGLE_STRIP
 		# repeated vertices are necessary to achieve flat shading in ES2
@@ -274,7 +311,7 @@ void main()
 			vertices.vertex3f(r1 * math.cos(as[3]), r1 * math.sin(as[3]), -dz
 		vertices.vertex3f(r1 * math.cos(0.0), r1 * math.sin(0.0), dz
 		vertices.vertex3f(r1 * math.cos(0.0), r1 * math.sin(0.0), -dz
-		vertices.vertices($_outward_vertices
+		$_outward_vertices_count = vertices.vertices($_outward_vertices
 		vertices.normals($_outward_normals
 		# draw inside radius cylinder
 		# GL_TRIANGLE_STRIP
@@ -287,7 +324,7 @@ void main()
 		vertices.normal3f(-math.cos(0.0), -math.sin(0.0), 0.0
 		vertices.vertex3f(r0 * math.cos(0.0), r0 * math.sin(0.0), -dz
 		vertices.vertex3f(r0 * math.cos(0.0), r0 * math.sin(0.0), dz
-		vertices.vertices($_cylinder_vertices
+		$_cylinder_vertices_count = vertices.vertices($_cylinder_vertices
 		vertices.normals($_cylinder_normals
 
 		gl.bind_buffer(gl.ARRAY_BUFFER, null
@@ -335,7 +372,6 @@ void main()
 	$__initialize = @(color, inner, outer, width, teeth, depth, image)
 		$_color = color
 		$_texture = gl.Texture(
-		$_texture_matrix = null
 		$_front_vertices = gl.Buffer(
 		$_front_teeth_vertices = gl.Buffer(
 		$_back_vertices = gl.Buffer(
@@ -370,11 +406,11 @@ void main()
 		$_face_uniform_texture_matrix.matrix4fv(true, $_texture_matrix.bytes()
 		gl.bind_buffer(gl.ARRAY_BUFFER, $_front_vertices
 		gl.vertex_attrib_pointer($_face_attribute_vertex, 3, gl.FLOAT, false, 0, 0
-		gl.draw_arrays(gl.TRIANGLE_STRIP, 0, $_front_vertices.count
+		gl.draw_arrays(gl.TRIANGLE_STRIP, 0, $_front_vertices_count
 
 		gl.bind_buffer(gl.ARRAY_BUFFER, $_front_teeth_vertices
 		gl.vertex_attrib_pointer($_face_attribute_vertex, 3, gl.FLOAT, false, 0, 0
-		gl.draw_arrays(gl.TRIANGLES, 0, $_front_teeth_vertices.count
+		gl.draw_arrays(gl.TRIANGLES, 0, $_front_teeth_vertices_count
 
 		# compute color for flat shaded surface
 		normal_back = (normal_matrix * Vector3(0.0, 0.0, -1.0)).normalized(
@@ -385,10 +421,10 @@ void main()
 		$_face_uniform_color.uniform4f(color.x * $_color.x, color.y * $_color.y, color.z * $_color.z, color.w * $_color.w # color * (ambient + diffuse)
 		gl.bind_buffer(gl.ARRAY_BUFFER, $_back_vertices
 		gl.vertex_attrib_pointer($_face_attribute_vertex, 3, gl.FLOAT, false, 0, 0
-		gl.draw_arrays(gl.TRIANGLE_STRIP, 0, $_back_vertices.count
+		gl.draw_arrays(gl.TRIANGLE_STRIP, 0, $_back_vertices_count
 		gl.bind_buffer(gl.ARRAY_BUFFER, $_back_teeth_vertices
 		gl.vertex_attrib_pointer($_face_attribute_vertex, 3, gl.FLOAT, false, 0, 0
-		gl.draw_arrays(gl.TRIANGLES, 0, $_back_teeth_vertices.count
+		gl.draw_arrays(gl.TRIANGLES, 0, $_back_teeth_vertices_count
 
 		gl.disable_vertex_attrib_array($_face_attribute_vertex
 		gl.bind_texture(gl.TEXTURE_2D, null
@@ -404,7 +440,7 @@ void main()
 		gl.vertex_attrib_pointer($_outward_attribute_vertex, 3, gl.FLOAT, false, 0, 0
 		gl.bind_buffer(gl.ARRAY_BUFFER, $_outward_normals
 		gl.vertex_attrib_pointer($_outward_attribute_normal, 3, gl.FLOAT, false, 0, 0
-		gl.draw_arrays(gl.TRIANGLE_STRIP, 0, $_outward_vertices.count
+		gl.draw_arrays(gl.TRIANGLE_STRIP, 0, $_outward_vertices_count
 		gl.disable_vertex_attrib_array($_outward_attribute_normal
 		gl.disable_vertex_attrib_array($_outward_attribute_vertex
 
@@ -419,14 +455,26 @@ void main()
 		gl.vertex_attrib_pointer($_cylinder_attribute_vertex, 3, gl.FLOAT, false, 0, 0
 		gl.bind_buffer(gl.ARRAY_BUFFER, $_cylinder_normals
 		gl.vertex_attrib_pointer($_cylinder_attribute_normal, 3, gl.FLOAT, false, 0, 0
-		gl.draw_arrays(gl.TRIANGLE_STRIP, 0, $_cylinder_vertices.count
+		gl.draw_arrays(gl.TRIANGLE_STRIP, 0, $_cylinder_vertices_count
 		gl.disable_vertex_attrib_array($_cylinder_attribute_normal
 		gl.disable_vertex_attrib_array($_cylinder_attribute_vertex
 
 		gl.use_program(null
 		gl.bind_buffer(gl.ARRAY_BUFFER, null
 
-Gears = Class(xraft.GLWidget) :: @
+Gears = xraft.GLWidget + @
+	$_context
+	$_rotate_x
+	$_rotate_y
+	$_rotate_z
+	$_angle
+	$_pressed
+	$_origin
+	$_timer
+	$_gear1
+	$_gear2
+	$_gear3
+	$_projection
 	$invalidate_all = @
 		extent = $geometry(
 		$invalidate(0, 0, extent.width(), extent.height()
@@ -490,28 +538,26 @@ Gears = Class(xraft.GLWidget) :: @
 		$_rotate_y = $_origin[1] + math.PI * (x - $_pressed[0]) / 180.0
 		$invalidate_all(
 	$__initialize = @(format)
-		:$^__initialize[$](format
+		xraft.GLWidget.__initialize[$](format
 		$_context = xraft.GLContext(format
 		$_rotate_x = math.PI * 20.0 / 180.0
 		$_rotate_y = math.PI * 30.0 / 180.0
 		$_rotate_z = 0.0
 		$_angle = 0.0
-		$_pressed = null
-		$_origin = null
 		$_timer = xraft.Timer((@
 			$_angle = $_angle + math.PI * 2.0 / 180.0
 			$invalidate_all(
 		)[$]
 		$_timer.start(30
 
-Frame = Class(xraft.Frame) :: @
+Frame = xraft.Frame + @
 	$on_move = @
 		extent = $geometry(
 		$at(0).move(xraft.Rectangle(0, 0, extent.width(), extent.height()
 	$on_focus_enter = @ xraft.application().focus__($at(0
 	$on_close = @ xraft.application().exit(
 	$__initialize = @
-		:$^__initialize[$](
+		xraft.Frame.__initialize[$](
 		$add(Gears(xraft.GLFormat(true, true, false, true
 
 xraft.main(system.arguments, @(application) cairo.main(@ gl.main(@

@@ -6,7 +6,8 @@ cairo = Module("cairo"
 xraftcairo = Module("xraftcairo"
 power = Module("power"
 
-Frame = Class(xraft.Frame) :: @
+Frame = xraft.Frame + @
+	$indicator
 	$on_paint = @(g) xraftcairo.draw_on_graphics(g, (@(context)
 		extent = $geometry(
 		width = Float(extent.width(
@@ -22,7 +23,7 @@ Frame = Class(xraft.Frame) :: @
 		extent = $geometry(
 		$invalidate(0, 0, extent.width(), extent.height()
 	$__initialize = @
-		:$^__initialize[$](
+		xraft.Frame.__initialize[$](
 		$caption__("Battery"
 		$indicator = power.Indicator($invalidate_all
 
