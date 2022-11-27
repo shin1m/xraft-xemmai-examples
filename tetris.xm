@@ -2,8 +2,8 @@
 
 system = Module("system"
 print = system.error.write_line
-io = Module("io"
 math = Module("math"
+os = Module("os"
 time = Module("time"
 xraft = Module("xraft"
 cairo = Module("cairo"
@@ -350,7 +350,7 @@ Stage = xraft.Widget + @
 		context.set_source($_surface, 0.0, 0.0
 		context.paint(
 	$load_sound = @(name)
-		path = (io.Path(system.script) / "../tetris.sounds" / name).__string(
+		path = (os.Path(system.script) / "../tetris.sounds" / name).__string(
 		source = $_context.create_source(
 		source.set_buffer($_context.get_device().create_buffer_from_file(path
 		source

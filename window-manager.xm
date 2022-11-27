@@ -2,7 +2,6 @@
 
 system = Module("system"
 print = system.error.write_line
-io = Module("io"
 os = Module("os"
 math = Module("math"
 time = Module("time"
@@ -246,7 +245,7 @@ Launcher = Menu + @
 	$__initialize = @
 		Menu.__initialize[$](
 		$_height = max(36.0, $_font.font_extents()[2] * 2.0
-		base = io.Path(system.script) / "../window-manager.data"
+		base = os.Path(system.script) / "../window-manager.data"
 		$_items = [
 			Item(base / "terminal0.png", ["Transparent Terminal", "xrafttt"], launch("xrafttt")
 			Item(base / "chromium.gif", ["Chromium"], launch("chromium")
@@ -614,7 +613,7 @@ Root = xraftwm.Root + @
 		$_launcher = Launcher(
 		$_list = List(
 		$_exiting = false
-		base = io.Path(system.script) / ".."
+		base = os.Path(system.script) / ".."
 		screen = xraft.application().screen(
 		width = screen.width(
 		height = screen.height(
