@@ -1,4 +1,3 @@
 #!/bin/sh
-#XRAFT_ROOT=~/github/debug
-XRAFT_ROOT=~/github/release
-LD_LIBRARY_PATH=$XRAFT_ROOT/lib $XRAFT_ROOT/bin/xemmai --verbose $*
+~/github/debug/bin/xemmai --verbose $*
+#~/github/release/bin/xemmai --verbose $*
