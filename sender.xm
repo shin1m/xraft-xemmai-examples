@@ -9,7 +9,7 @@ dbusproxy = Module("dbusproxy"
 
 Sender = dbusproxy.Service + @
 	$__initialize = @(connection) dbusproxy.Service.__initialize[$](connection, "/foo/Sender", "foo.Sender"
-	$emit_message = @(message) $send($signal("Message").append(message
+	$emit_message = @(message) $send($signal("Message").string(message
 
 Frame = xraft.Frame + @
 	$sender

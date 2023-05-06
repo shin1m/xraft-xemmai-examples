@@ -25,15 +25,15 @@ $Proxy = Object + @
 			reply = $connection.send_with_reply(message
 			result = reply(
 			result.get_type() == dbus.MESSAGE_TYPE_ERROR && throw Throwable(result.get().__string(
-			a = result.get(
-			a.size() > 0 ? a[0] : null
+			xs = result.get(
+			xs.size() > 0 ? xs[0] : null
 		finally
 			message.release(
 			reply !== null && reply.release(
 			result !== null && result.release(
-	$properties = @(method, name) dbus.Message($destination, $path, dbus.INTERFACE_PROPERTIES, method).append($interface).append(name
+	$properties = @(method, name) dbus.Message($destination, $path, dbus.INTERFACE_PROPERTIES, method).string($interface).string(name
 	$get = @(name) $call($properties("Get", name
-	$set = @(name, value) $call($properties("Set", name).append(value
+	$set = @(name, signature, callable) $call($properties("Set", name).variant(signature, callable
 
 $Service = Object + @
 	$connection
