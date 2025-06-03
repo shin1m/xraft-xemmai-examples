@@ -48,14 +48,14 @@ parse_time = @(text, default = null)
 			try
 				time.compose(time.parse_http(text
 			catch Throwable e
-				default === null ? time.now() : default
+				default || time.now(
 
 format_time = @(t)
 	o = time.offset(
 	time.format_rfc2822(time.decompose(t + Float(o)), o
 
 create_thumbnail = @(image, width, height)
-	image === null && return
+	image || return
 	image.rewind(
 	try
 		s = cairo.ImageSurface.create_from_stream(image.read
@@ -103,7 +103,7 @@ Channel = Object + @
 		$_next = 0.0
 		$create_thumbnail(width, height
 	$create_thumbnail = @(width, height)
-		if $_thumbnail !== null
+		if $_thumbnail
 			$_thumbnail[0].release(
 			$_thumbnail[1].release(
 		$_thumbnail = create_thumbnail($_image, width, height
@@ -144,7 +144,7 @@ Worker = Object + @
 			channel._next = b + math.ceil((time.now() - b) / p) * p
 		url = c.image_url != "" ? c.image_url : channel._default_image
 		channel._image = null
-		if url !== null
+		if url
 			print("retrieving: " + url + " ..."
 			try
 				channel._image = retrieve(url
@@ -357,7 +357,7 @@ List = xraft.Frame + @
 				writer.write_element("url", c._url
 				writer.write_element("next", time.format_xsd(time.decompose(c._next), 0, 3)
 				writer.start_element("image"
-				if c._image !== null
+				if c._image
 					c._image.rewind(
 					mime.base64_encode(c._image.read, @(s) writer.write_string(s), 72
 				writer.end_element(
@@ -384,7 +384,7 @@ List = xraft.Frame + @
 		y1 = ceil(y + $_item_height
 		$invalidate(0, y0, $geometry().width(), y1 - y0
 	$update_current = @
-		if $_pressed !== null || $_delta == 0
+		if $_pressed || $_delta == 0
 			i = floor(Float($_y + $_position) / $_item_height
 			if i >= $_items.size()
 				i = -1
@@ -439,7 +439,7 @@ List = xraft.Frame + @
 				context.rectangle(0.0, y, width, h
 				context.fill(
 				thumbnail = item._channel._thumbnail
-				if thumbnail !== null
+				if thumbnail
 					context.set_source(thumbnail[0], 0.0, y
 					context.paint(
 				context.set_source_rgb(colors[1].red, colors[1].green, colors[1].blue
@@ -488,7 +488,7 @@ List = xraft.Frame + @
 	$delta = @(dt, y) Integer(Float(y - $_last_pointer) * 20.0 / Float(dt)
 	$on_button_release = @(modifier, button, x, y)
 		$_y = y
-		if button == xraft.Button.BUTTON3 && $_pressed !== null
+		if button == xraft.Button.BUTTON3 && $_pressed
 			$_pressed = null
 			dt = time.tick() - $_last_tick
 			if !$_moved
@@ -507,7 +507,7 @@ List = xraft.Frame + @
 			$_current = -1
 	$on_pointer_move = @(modifier, x, y)
 		$_y = y
-		if $_pressed !== null
+		if $_pressed
 			$position__($_pressed - y
 			tick = time.tick(
 			dt = tick - $_last_tick
@@ -544,13 +544,13 @@ List = xraft.Frame + @
 				news.push(c
 		news.each((@(channel) channel.initialize($_image_width, $_item_height))[$]
 		$_items = [
-		items.each(@(i) i._channel._next !== null && :$_items.push(i
+		items.each(@(i) i._channel._next && :$_items.push(i
 		$_sort = sort_keys[xraft.Key.R]
 		$_position = 0
 		$_current = -1
 		$_delta = 0
 		$_timer = xraft.Timer((@
-			if $_pressed === null
+			if !$_pressed
 				position = $_position
 				$position__($_position - $_delta
 				if $_position == position

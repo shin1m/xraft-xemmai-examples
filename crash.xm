@@ -22,13 +22,13 @@ Hello = xraft.Frame + @
 		if key == xraft.Key.Q
 			$on_close(
 		else if key == xraft.Key.T
-			$thread !== null && $thread.join(
+			$thread && $thread.join(
 			$thread = Thread(@
 				:$_count = :$_count + 1
 				extent = :$geometry(
 				:$invalidate(0, 0, extent.width(), extent.height()
 		else if key == xraft.Key.P
-			$thread !== null && $thread.join(
+			$thread && $thread.join(
 			application = xraft.application(
 			$thread = Thread(@
 				application.post(@
@@ -41,7 +41,7 @@ Hello = xraft.Frame + @
 		extent = $geometry(
 		$invalidate(0, 0, extent.width(), extent.height()
 	$on_close = @
-		$thread !== null && $thread.join(
+		$thread && $thread.join(
 		xraft.application().exit(
 	$__initialize = @(text)
 		xraft.Frame.__initialize[$](

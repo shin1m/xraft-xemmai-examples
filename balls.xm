@@ -87,7 +87,7 @@ Balls = xraft.Frame + @
 		$invalidate_all(
 	$append = @
 		cursor = $_cursor
-		cursor === null && return
+		cursor || return
 		$balls.push(Ball($ball, $mask, cursor.x(), cursor.y(), 0.0, 0.0
 		$invalidate_all(
 	$on_move = @
@@ -130,7 +130,7 @@ Balls = xraft.Frame + @
 		g.draw(0, h * 2, "Kinetic and Potential Energy: " + $energy
 		g.draw(0, h * 3, "Double Bufferred: " + $double_bufferred
 		cursor = $_cursor
-		cursor === null && return
+		cursor || return
 		ball = $ball
 		r = ball.width() / 2
 		g.draw(cursor.x() - r, cursor.y() - r, ball.width(), ball.height()

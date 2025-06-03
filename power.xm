@@ -47,18 +47,18 @@ $Indicator = Object + @
 		context.set_fill_rule(cairo.FillRule.EVEN_ODD
 		context.fill(
 	$refresh = @(message)
-		message !== null && print("Properties Changed: " + message.get()
-		if $line !== null
+		message && print("Properties Changed: " + message.get()
+		if $line
 			$online = $line.get("Online"
-		if $battery !== null
+		if $battery
 			$percentage = $battery.get("Percentage"
 			$state = $battery.get("State"
 		$invalidate(
 	$reload = @(message)
-		if $line !== null
+		if $line
 			$line.remove_properties_changed(
 			$line = null
-		if $battery !== null
+		if $battery
 			$battery.remove_properties_changed(
 			$battery = null
 		$up.enumerate_devices().each((@(path)
@@ -69,8 +69,8 @@ $Indicator = Object + @
 			else if type == 2
 				$battery = device
 		)[$]
-		$line !== null && $line.add_properties_changed($refresh
-		$battery !== null && $battery.add_properties_changed($refresh
+		$line && $line.add_properties_changed($refresh
+		$battery && $battery.add_properties_changed($refresh
 		$refresh(null
 	$__initialize = @(invalidate)
 		$invalidate = invalidate

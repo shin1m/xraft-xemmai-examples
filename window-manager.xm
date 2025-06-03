@@ -196,7 +196,7 @@ Launcher = Menu + @
 		$v_texts
 		$v_action
 		$__initialize = @(icon, texts, action)
-			$v_icon = icon === null ? null : create_icon(icon.__string(), 32.0, 32.0)
+			$v_icon = icon && create_icon(icon.__string(), 32.0, 32.0)
 			$v_texts = texts
 			$v_action = action
 		$width = @(font)
@@ -217,12 +217,12 @@ Launcher = Menu + @
 		colors = root.v_active
 		text = root.v_text_active
 		item = $_items[i]
-		color = item.v_action !== null && i == $_current ? text : colors.face
+		color = item.v_action && i == $_current ? text : colors.face
 		context.set_source_rgb(color.red, color.green, color.blue
 		context.rectangle(0.0, y, width, Float($_height)
 		context.fill(
 		icon = item.v_icon
-		if icon !== null
+		if icon
 			context.set_source(icon[0], x + Float(32 - icon[1].width()) / 2.0, y + ($_height - Float(icon[1].height())) / 2.0
 			context.paint(
 		color = i == $_current ? colors.face : text
@@ -239,7 +239,7 @@ Launcher = Menu + @
 		if button == xraft.Button.BUTTON1 || button == xraft.Button.BUTTON3
 			if $_current >= 0
 				action = $_items[$_current].v_action
-				if action !== null
+				if action
 					$close(
 					action(
 	$__initialize = @
@@ -322,7 +322,7 @@ Client = xraftwm.Client + @
 		$paint = @(context, parent)
 			root = parent.parent(
 			if $ === parent._pointed
-				face = $ === parent._pressed ? root.v_pressed : parent._pressed !== null ? root.v_active.face : root.v_pointed
+				face = $ === parent._pressed ? root.v_pressed : parent._pressed ? root.v_active.face : root.v_pointed
 				text = root.v_text_active
 			else if parent === root.active()
 				face = root.v_active.face
@@ -379,7 +379,7 @@ Client = xraftwm.Client + @
 	$_normal
 	$pointed = @(x, y)
 		button = first($_buttons, @(button) button.contains(x, y
-		button !== null && return button
+		button && return button
 		extent = $geometry(
 		w = extent.width(
 		h = extent.height(
@@ -390,7 +390,7 @@ Client = xraftwm.Client + @
 		y < h - 20 && return x < 20 ? v_part_left : v_part_right
 		x < 20 ? v_part_left_bottom : x < w - 20 ? v_part_bottom : v_part_right_bottom
 	$maximize = @
-		if $_normal === null
+		if !$_normal
 			$_normal = $geometry(
 			screen = xraft.application().screen(
 			borders = $borders(
@@ -428,8 +428,8 @@ Client = xraftwm.Client + @
 			:x = x - button.v_width
 			button.v_x = x
 		root = $parent(
-		root === null && return
-		if root._resizing === null
+		root || return
+		if !root._resizing
 			point = $from_screen(xraft.application().pointer(
 			$on_pointer_move(xraft.Modifier.NONE, point.x(), point.y()
 		$invalidate_all(
@@ -464,33 +464,33 @@ Client = xraftwm.Client + @
 		$_buttons.each(@(button) button.paint(context, :$
 	)[$]
 	$on_button_press = @(modifier, button, x, y)
-		($_pressed !== null || $parent()._resizing !== null) && return
+		($_pressed || $parent()._resizing) && return
 		if button == xraft.Button.BUTTON1
 			$_pointed.press($, x, y
 		else if button == xraft.Button.BUTTON3
 			$shaded__(!$shaded(
 	$on_button_release = @(modifier, button, x, y)
-		$_pressed === null && return
-		if $_pointed === $_pressed: $_pressed.v_action(
+		$_pressed || return
+		if $_pointed === $_pressed; $_pressed.v_action(
 		$_pressed.invalidate($
 		$_pressed = null
 		$cursor__($_pointed.cursor(
 	$on_pointer_enter = @(modifier, x, y, mode, detail)
 		root = $parent(
-		root._resizing !== null && return
-		$_pressed === null && detail != xraft.CrossDetail.INNER && root.active__($
+		root._resizing && return
+		$_pressed || detail == xraft.CrossDetail.INNER || root.active__($
 		$on_pointer_move(modifier, x, y
 	$on_pointer_leave = @(modifier, x, y, mode, detail)
-		$parent()._resizing !== null && return
+		$parent()._resizing && return
 		$on_pointer_move(modifier, x, y
 	$on_pointer_move = @(modifier, x, y)
-		$parent()._resizing !== null && return
+		$parent()._resizing && return
 		pointed = $pointed(x, y
 		pointed === $_pointed && return
 		$_pointed.invalidate($
 		$_pointed = pointed
 		$_pointed.invalidate($
-		$_pressed === null && $cursor__($_pointed.cursor(
+		$_pressed || $cursor__($_pointed.cursor(
 	$on_activate = @ $invalidate_all(
 	$on_deactivate = @ $invalidate_all(
 	$on_name = @ $invalidate_all(
@@ -566,20 +566,20 @@ Root = xraftwm.Root + @
 		g.draw(0, 0, $_wall0, 0, 0, $_wall0.width(), $_wall0.height()
 		xraftcairo.draw_on_graphics(g, $draw
 	$on_button_press = @(modifier, button, x, y)
-		$_resizing !== null && return
+		$_resizing && return
 		if button == xraft.Button.BUTTON1
 			$_launcher.popup($to_screen(xraft.Point(x, y
 		else if button == xraft.Button.BUTTON3
 			$_list.popup($to_screen(xraft.Point(x, y
 	$on_button_release = @(modifier, button, x, y)
-		($_resizing === null || button != xraft.Button.BUTTON1) && return
+		$_resizing && button == xraft.Button.BUTTON1 || return
 		$_resizing = null
 		application = xraft.application(
 		application.pointer_grabber__(null
 		$cursor__(application.cursor_x(
 	$on_pointer_enter = @(modifier, x, y, mode, detail) $active__(null
 	$on_pointer_move = @(modifier, x, y)
-		$_resizing === null && return
+		$_resizing || return
 		client = $_resizing[0]
 		horizontal = $_resizing[1]
 		x = x + $_resizing[2]

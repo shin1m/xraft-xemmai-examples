@@ -210,7 +210,7 @@ gradient = @(context)
 	pattern.release(
 
 image = @(context)
-	file = io.File("data/romedalen.png", "rb"
+	file = io.File("data/romedalen.png", "r"
 	try
 		image = cairo.ImageSurface.create_from_png_stream(file.read
 	finally

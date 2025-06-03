@@ -8,7 +8,7 @@ ElementReader = libxml.TextReader + @
 	#	:$^__initialize[$](*arguments
 	$read_next = @ $_type = $read() ? $node_type() : null
 	$type = @ $_type
-	$move_to_tag = @ while $_type !== null && $_type != libxml.ReaderTypes.ELEMENT && $_type != libxml.ReaderTypes.END_ELEMENT
+	$move_to_tag = @ while $_type && $_type != libxml.ReaderTypes.ELEMENT && $_type != libxml.ReaderTypes.END_ELEMENT
 		$read_next(
 	$is_start_element = @(name)
 		$move_to_tag(

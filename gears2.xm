@@ -528,12 +528,12 @@ Gears = xraft.GLWidget + @
 		viewing = viewings.pop(
 		$_context.flush(
 	$on_key_press = @(modifier, key, ascii) key == xraft.Key.Q && xraft.application().exit(
-	$on_button_press = @(modifier, button, x, y) if $_pressed === null
+	$on_button_press = @(modifier, button, x, y) if !$_pressed
 		$_pressed = '(x, y
 		$_origin = '($_rotate_x, $_rotate_y
-	$on_button_release = @(modifier, button, x, y) if $_pressed !== null
+	$on_button_release = @(modifier, button, x, y) if $_pressed
 		$_pressed = $_origin = null
-	$on_pointer_move = @(modifier, x, y) if $_pressed !== null
+	$on_pointer_move = @(modifier, x, y) if $_pressed
 		$_rotate_x = $_origin[0] + math.PI * (y - $_pressed[1]) / 180.0
 		$_rotate_y = $_origin[1] + math.PI * (x - $_pressed[0]) / 180.0
 		$invalidate_all(

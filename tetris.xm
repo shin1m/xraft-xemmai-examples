@@ -69,7 +69,7 @@ Tetrimino = Object + @
 		)[$]
 	check = @(row)
 		for i = 1; i < 11; i = i + 1
-			row[i] === null && return false
+			row[i] || return false
 		true
 	$fix = @(rows, direction, x, y)
 		fixeds = [
@@ -91,7 +91,7 @@ Tetrimino = Object + @
 		n = bs.size(
 		for i = 0; i < n; i = i + 1
 			b = bs[i]
-			rows[y + b[1]][x + b[0]] !== null && return true
+			rows[y + b[1]][x + b[0]] && return true
 		false
 	$try_rotate = @(rows, direction, x, y, offsets)
 		!$conflicts(rows, direction, x, y) && return '(x, y
@@ -318,23 +318,23 @@ Stage = xraft.Widget + @
 			context.restore(
 			context.save(
 			context.translate(4.5 * unit, -3 * unit
-			$_hard_drop !== null && $_hard_drop.draw_hard_drop(context, $_hard_drop_direction, $_hard_drop_x, $_hard_drop_y0, $_hard_drop_y1, Float($_ticks_to_fade_hard_drop) / $_speed_to_fade_hard_drop
+			$_hard_drop && $_hard_drop.draw_hard_drop(context, $_hard_drop_direction, $_hard_drop_x, $_hard_drop_y0, $_hard_drop_y1, Float($_ticks_to_fade_hard_drop) / $_speed_to_fade_hard_drop
 			range(3, 24, (@(i)
 				row = $_rows[i]
 				range(1, 11, @(j)
 					block = row[j]
-					block !== null && draw_block(context, j, i, block
+					block && draw_block(context, j, i, block
 			)[$]
 			if $_filleds.size() > 0
 				context.set_source_rgba(1.0, 1.0, 1.0, Float($_speed_to_clear - $_ticks_to_wait) / $_speed_to_clear
 				$_filleds.each(@(i)
 					context.rectangle(unit, i * unit, 10 * unit, unit
 					context.fill(
-			if $_tetrimino !== null
+			if $_tetrimino
 				$_tetrimino.draw_ghost(context, $_direction, $_x, $_ghost
 				$_tetrimino.draw(context, $_direction, $_x, $_y
 			context.restore(
-			if $_held !== null
+			if $_held
 				context.save(
 				context.translate(unit, (1.0 - 4.0 * $_ticks_to_hold / $_speed_to_hold) * unit
 				$_held.draw(context, 0, 0, 0
@@ -420,7 +420,7 @@ Stage = xraft.Widget + @
 		$lines = 0
 		$score = 0
 		$draw(
-		$on_clear !== null && $on_clear(
+		$on_clear && $on_clear(
 	$next = @
 		$_nexts.size() < 4 && next7().each((@(i) $_nexts.push(i))[$]
 		$_ticks_to_next = $_speed_to_next
@@ -475,7 +475,7 @@ Stage = xraft.Widget + @
 			$_speed_to_drop = $_speed_to_drop * 4 / 5
 			if $_speed_to_drop < 1
 				$_speed_to_drop = 1
-		$on_clear !== null && $on_clear(
+		$on_clear && $on_clear(
 		$_sound_clear.play(
 	$fix = @
 		$_filleds = $_tetrimino.fix($_rows, $_direction, $_x, $_y
@@ -524,7 +524,7 @@ Stage = xraft.Widget + @
 			$_ticks_to_repeat_slide = $_ticks_to_repeat_slide - 1
 		if $_ticks_to_repeat_drop > 0
 			$_ticks_to_repeat_drop = $_ticks_to_repeat_drop - 1
-		if $_tetrimino !== null
+		if $_tetrimino
 			dxs = '(0, -1, 1, 0
 			dx = 0
 			if $_pulse_slide != 0
@@ -537,17 +537,17 @@ Stage = xraft.Widget + @
 				if !$_tetrimino.conflicts($_rows, $_direction, x, $_y)
 					$_x = x
 					$_ghost = $_tetrimino.ghost($_rows, $_direction, $_x, $_y
-		if $_hard_drop !== null && $_ticks_to_fade_hard_drop <= 0
+		if $_hard_drop && $_ticks_to_fade_hard_drop <= 0
 			$_hard_drop = null
 		$_tick(
 		$draw(
 	$start = @
-		$_tick !== null && $reset(
+		$_tick && $reset(
 		$_sound_bgm.play(
 		$_timer.start(10
 		$send($next(
 	$hard_drop = @
-		$_tetrimino === null && return
+		$_tetrimino || return
 		$_hard_drop = $_tetrimino
 		$_hard_drop_direction = $_direction
 		$_hard_drop_x = $_x
@@ -579,28 +579,28 @@ Stage = xraft.Widget + @
 		$_drop_pressed = false
 		$_ticks_to_repeat_drop = 0
 	$rotate_left = @
-		$_tetrimino === null && return
+		$_tetrimino || return
 		direction = ($_direction + 3) % 4
 		xy = $_tetrimino.try_rotate_left($_rows, direction, $_x, $_y
-		xy === null && return
+		xy || return
 		$_direction = direction
 		$_x = xy[0]
 		$_y = xy[1]
 		$_ghost = $_tetrimino.ghost($_rows, $_direction, $_x, $_y
 	$rotate_right = @
-		$_tetrimino === null && return
+		$_tetrimino || return
 		direction = ($_direction + 1) % 4
 		xy = $_tetrimino.try_rotate_right($_rows, direction, $_x, $_y
-		xy === null && return
+		xy || return
 		$_direction = direction
 		$_x = xy[0]
 		$_y = xy[1]
 		$_ghost = $_tetrimino.ghost($_rows, $_direction, $_x, $_y
 	$hold = @
-		($_tetrimino === null || $_already_held) && return
+		$_tetrimino && !$_already_held || return
 		held = $_held
 		$_held = $_tetrimino
-		$send(held === null ? $next() : held
+		$send(held || $next(
 		$_already_held = true
 		$_ticks_to_hold = $_speed_to_hold
 		$_sound_hold.play(
